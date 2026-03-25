@@ -1,0 +1,16 @@
+node_modules/
+.env
+*.log
+.DS_Store
+dist/
+build/
+bin/
+obj/
+.vscode/
+.idea/
+Devesh/secure-file-storage/node_modules/
+Devesh/frontend/node_modules/
+Devesh/secure-file-storage/.env
+Devesh/frontend/.env
+uploads/*
+!uploads/.gitkeep
