@@ -1,0 +1,70 @@
+﻿Validating configuration...
+Γ£ô Configuration validated successfully
+Testing database connection...
+node : (node:29452) 
+[DEP0169] 
+DeprecationWarning: 
+`url.parse()` behavior 
+is not standardized 
+and prone to errors 
+that have security 
+implications. Use the 
+WHATWG URL API 
+instead. CVEs are not 
+issued for 
+`url.parse()` 
+vulnerabilities.
+At line:1 char:1
++ node src/server.js 
+2>&1 | Out-File 
+-FilePath 
+startup-error.txt 
+-Encod ...
++ 
+~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: ((node:29452)    
+ [D...ulnerabilitie    
+s.:String) [], Rem    
+oteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+(Use `node 
+--trace-deprecation 
+...` to show where the 
+warning was created)
+Executing (default): SELECT 1+1 AS result
+Γ£ô Database connection established successfully
+Synchronizing database...
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='users';
+Executing (default): PRAGMA TABLE_INFO(`users`);
+Executing (default): PRAGMA foreign_key_list(`users`)
+Executing (default): PRAGMA INDEX_LIST(`users`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_users_1`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_users_2`)
+Executing (default): PRAGMA INDEX_INFO(`users_email`)
+Executing (default): PRAGMA INDEX_INFO(`users_is_active`)
+Executing (default): PRAGMA foreign_key_list(`users`)
+Executing (default): PRAGMA TABLE_INFO(`users`);
+Executing (default): PRAGMA INDEX_LIST(`users`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_users_1`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_users_2`)
+Executing (default): PRAGMA INDEX_INFO(`users_email`)
+Executing (default): PRAGMA INDEX_INFO(`users_is_active`)
+Executing (default): PRAGMA foreign_key_list(`users`)
+Executing (default): CREATE TABLE IF NOT EXISTS `users_backup` (`id` UUID UNIQUE PRIMARY KEY, `email` VARCHAR(255) NOT NULL UNIQUE, `password_hash` VARCHAR(255) NOT NULL, `full_name` VARCHAR(255) NOT NULL, `is_active` TINYINT(1) DEFAULT 1, `is_locked` TINYINT(1) DEFAULT 0, `locked_until` DATETIME, `failed_login_attempts` INTEGER DEFAULT '0', `last_login` DATETIME, `role` TEXT DEFAULT 'user', `mfa_enabled` TINYINT(1) DEFAULT 0, `mfa_secret` VARCHAR(255), `mfa_backup_codes` TEXT, `encrypted_user_key` TEXT, `user_key_iv` VARCHAR(255), `user_key_auth_tag` VARCHAR(255), `created_at` DATETIME NOT NULL, `updated_at` DATETIME NOT NULL, `username` TEXT, `is_restricted` TINYINT(1) DEFAULT 0);
+Executing (default): INSERT INTO `users_backup` SELECT `id`, `email`, `password_hash`, `full_name`, `is_active`, `is_locked`, `locked_until`, `failed_login_attempts`, `last_login`, `role`, `mfa_enabled`, `mfa_secret`, `mfa_backup_codes`, `encrypted_user_key`, `user_key_iv`, `user_key_auth_tag`, `created_at`, `updated_at`, `username`, `is_restricted` FROM `users`;
+Γ£ù Database sync 
+failed: SQLITE_ERROR: 
+table users_backup has 
+18 columns but 20 
+values were supplied
+Γ£ù Application 
+initialization failed: 
+SQLITE_ERROR: table 
+users_backup has 18 
+columns but 20 values 
+were supplied

@@ -1,0 +1,76 @@
+﻿node : C:\Users\DEVESH\
+Desktop\Devesh\Devesh\s
+ecure-file-storage\node
+_modules\sequelize\lib\
+dialects\abstract\conne
+ction-manager.js:55
+At line:1 char:1
++ node src/server.js > 
+db-log.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (C:\Users\DEVE   
+ SH...n-manager.js:    
+55:String) [], Rem    
+oteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+        throw new 
+Error(`Please install 
+${moduleName} package 
+manually`);
+              ^
+
+Error: Please install 
+pg package manually
+    at ConnectionManage
+r._loadDialectModule (C
+:\Users\DEVESH\Desktop\
+Devesh\Devesh\secure-fi
+le-storage\node_modules
+\sequelize\lib\dialects
+\abstract\connection-ma
+nager.js:55:15)
+    at new 
+ConnectionManager (C:\U
+sers\DEVESH\Desktop\Dev
+esh\Devesh\secure-file-
+storage\node_modules\se
+quelize\lib\dialects\po
+stgres\connection-manag
+er.js:15:24)
+    at new 
+PostgresDialect (C:\Use
+rs\DEVESH\Desktop\Deves
+h\Devesh\secure-file-st
+orage\node_modules\sequ
+elize\lib\dialects\post
+gres\index.js:13:30)
+    at new Sequelize (C
+:\Users\DEVESH\Desktop\
+Devesh\Devesh\secure-fi
+le-storage\node_modules
+\sequelize\lib\sequeliz
+e.js:194:20)
+    at file:///C:/Users
+/DEVESH/Desktop/Devesh/
+Devesh/secure-file-stor
+age/src/config/database
+.js:28:7
+    at ModuleJob.run (n
+ode:internal/modules/es
+m/module_job:430:25)
+    at async onImport.t
+racePromise.__proto__ (
+node:internal/modules/e
+sm/loader:661:26)
+    at async asyncRunEn
+tryPointWithESMLoader (
+node:internal/modules/r
+un_main:101:5)
+
+Node.js v24.14.0

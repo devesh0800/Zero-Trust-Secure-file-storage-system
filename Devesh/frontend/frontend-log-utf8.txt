@@ -1,0 +1,62 @@
+﻿
+> frontend@0.1.0 dev
+> next dev
+
+node.exe : ΓÜá 
+Warning: Next.js 
+inferred your 
+workspace root, but it 
+may not be correct.
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~
+    + CategoryInfo     
+         : 
+NotSpecified    : (ΓÜá 
+Warning: Ne.    ..not 
+be correct.:S    
+tring) [], RemoteEx    
+ception
+    + 
+FullyQualifiedErr    
+orId : NativeComman    
+dError
+ 
+ We detected multiple 
+lockfiles and selected 
+the directory of C:\Use
+rs\DEVESH\package-lock.
+json as the root 
+directory.
+ To silence this 
+warning, set 
+`turbopack.root` in 
+your Next.js config, 
+or consider removing 
+one of the lockfiles 
+if it's not needed.
+   See https://nextjs.o
+rg/docs/app/api-referen
+ce/config/next-config-j
+s/turbopack#root-direct
+ory for more 
+information.
+ Detected additional 
+lockfiles: 
+   * C:\Users\DEVESH\De
+sktop\Devesh\Devesh\fro
+ntend\package-lock.json
+
+Γû▓ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.56.1:3000
+
+Γ£ô Starting...
+Γ£ô Ready in 2.5s

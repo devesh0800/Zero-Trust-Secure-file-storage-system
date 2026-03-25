@@ -1,0 +1,43 @@
+﻿
+≡ƒöÉ 1. REGISTER USER
+   Γ£à Registration OK
+
+≡ƒôñ 2. UPLOAD SAFE FILE
+   Γ£à Safe file uploaded. ID: b23d45bb-03c2-47c9-a271-3e79cc13912b
+
+≡ƒªá 3. VIRUS SCAN - BLOCK .EXE
+   Γ£à Malware correctly BLOCKED
+
+≡ƒöù 4. SIGNED DOWNLOAD URL
+   Γ£à Signed URL generated. Expires: 2026-03-16T16:28:06.350Z
+
+≡ƒôÑ 5. DOWNLOAD VIA SIGNED URL
+   Γ£à Downloaded via signed URL
+
+≡ƒÜ½ 6. REJECT INVALID SIGNED URL
+   Γ£à Invalid token correctly rejected
+
+≡ƒÆ╛ 7. CREATE ENCRYPTED BACKUP
+   Γ£à Backup created: C:\Users\DEVESH\Desktop\Devesh\Devesh\secure-file-storage\backups\backup_2026-03-16T16-23-06-392Z.enc
+
+≡ƒôï 8. LIST BACKUPS
+   Γ£à Found 2 backup(s)
+
+≡ƒöÆ 9. FILE INTEGRITY (Download + Verify)
+   Γ£à File integrity verified (content matches original)
+
+==================================================
+≡ƒÅå SECURITY TEST RESULTS
+==================================================
+  Γ£à Register
+  Γ£à Upload Safe File
+  Γ£à Block Malware
+  Γ£à Generate Signed URL
+  Γ£à Download via Signed URL
+  Γ£à Reject Invalid Token
+  Γ£à Create Backup
+  Γ£à List Backups
+  Γ£à File Integrity
+
+  Score: 9/9 tests passed
+==================================================

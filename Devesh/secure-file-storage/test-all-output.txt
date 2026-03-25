@@ -1,0 +1,76 @@
+﻿
+=======================================================
+  ≡ƒôï SECTION 1: HEALTH & CAPTCHA
+=======================================================
+  Γ£à GET /health ΓÇö API is running
+  Γ£à GET /auth/captcha ΓÇö ID: 74be894b...
+
+=======================================================
+  ≡ƒöÉ SECTION 2: AUTHENTICATION
+=======================================================
+  Γ£à POST /auth/register
+  Γ£à POST /auth/login
+  Γ£à GET /auth/me ΓÇö fulltest_311900@test.com
+  Γ£à GET /auth/sessions ΓÇö 2 active session(s)
+  Γ£à GET /auth/audit-logs ΓÇö 2 log entries
+  Γ£à POST /auth/refresh ΓÇö No cookie (expected in script)
+
+=======================================================
+  ≡ƒôü SECTION 3: FILE OPERATIONS
+=======================================================
+  Γ£à POST /files/upload ΓÇö ID: bcc0fe42...
+  Γ£à GET /files ΓÇö 1 file(s)
+  Γ£à GET /files/:id ΓÇö endpoint-test.txt
+  Γ£à GET /files/:id/download ΓÇö Integrity Γ£ô
+  Γ£à GET /files/:id/signed-url ΓÇö Expires: 2026-03-16T17:03:04.496Z
+  Γ£à GET /files/:id/download?token=... ΓÇö Signed token download
+
+=======================================================
+  ≡ƒöæ SECTION 4: MFA (TOTP)
+=======================================================
+  Γ£à POST /auth/mfa/setup ΓÇö Secret generated
+  Γ£à POST /auth/mfa/verify-setup ΓÇö MFA has been successfully enabled
+  Γ£à POST /auth/login (MFA user) ΓÇö mfa_required: true
+  Γ£à POST /auth/verify-mfa ΓÇö Full tokens received
+
+=======================================================
+  ≡ƒ¢í∩╕Å  SECTION 5: SECURITY (IDS + VIRUS SCAN)
+=======================================================
+  Γ£à POST /files/upload (.exe) ΓÇö Malware BLOCKED
+  Γ£à IDS: SQL Injection ΓÇö Status: 400
+  Γ£à IDS: Path Traversal ΓÇö Status: 404
+
+=======================================================
+  ΓÜÖ∩╕Å  SECTION 6: ADMIN ENDPOINTS
+=======================================================
+  Γ£à POST /admin/backup ΓÇö Encrypted backup created
+  Γ£à GET /admin/backups ΓÇö 4 backup(s)
+  Γ£à GET /admin/ids/status ΓÇö 1 tracked entries
+  Γ£à GET /admin/devices ΓÇö 1 known device(s)
+
+=======================================================
+  ≡ƒöÜ SECTION 7: SESSION MANAGEMENT & CLEANUP
+=======================================================
+  Γ£à DELETE /auth/sessions/:id ΓÇö Session revoked
+  Γ£à DELETE /files/:id ΓÇö File soft-deleted
+  Γ£à POST /auth/logout ΓÇö Logged out
+node : 
+At line:1 char:1
++ node 
+test-all-endpoints.js 
+2>&1 | Out-File 
+-Encoding utf8 
+test-all-ou ...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (:String) [],    
+ RemoteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+≡ƒÆÑ Fatal: fetch 
+failed
+TypeError: fetch failed

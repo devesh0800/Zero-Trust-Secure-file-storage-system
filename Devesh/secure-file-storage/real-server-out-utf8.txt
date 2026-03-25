@@ -1,0 +1,97 @@
+﻿
+> secure-file-storage-backend@1.0.0 dev
+> nodemon src/server.js
+
+[33m[nodemon] 3.1.14[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: js,mjs,cjs,json[39m
+[32m[nodemon] starting `node src/server.js`[39m
+Validating configuration...
+Γ£ô Configuration validated successfully
+Testing database connection...
+node.exe : 
+(node:20316) [DEP0169] 
+DeprecationWarning: 
+`url.parse()` behavior 
+is not standardized 
+and prone to errors 
+that have security 
+implications. Use the 
+WHATWG URL API 
+instead. CVEs are not 
+issued for 
+`url.parse()` 
+vulnerabilities.
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: ((node:20316)    
+ [D...ulnerabilitie    
+s.:String) [], Rem    
+oteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+(Use `node 
+--trace-deprecation 
+...` to show where the 
+warning was created)
+Executing (default): SELECT 1+1 AS result
+Γ£ô Database connection established successfully
+Synchronizing database...
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='users';
+Executing (default): PRAGMA INDEX_LIST(`users`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_users_1`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_users_2`)
+Executing (default): PRAGMA INDEX_INFO(`users_email`)
+Executing (default): PRAGMA INDEX_INFO(`users_is_active`)
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='files';
+Executing (default): PRAGMA INDEX_LIST(`files`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_files_1`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_files_2`)
+Executing (default): PRAGMA INDEX_INFO(`files_user_id`)
+Executing (default): PRAGMA INDEX_INFO(`files_stored_filename`)
+Executing (default): PRAGMA INDEX_INFO(`files_is_deleted`)
+Executing (default): PRAGMA INDEX_INFO(`files_created_at`)
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='audit_logs';
+Executing (default): PRAGMA INDEX_LIST(`audit_logs`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_audit_logs_1`)
+Executing (default): PRAGMA INDEX_INFO(`audit_logs_user_id`)
+Executing (default): PRAGMA INDEX_INFO(`audit_logs_event_type`)
+Executing (default): PRAGMA INDEX_INFO(`audit_logs_created_at`)
+Executing (default): PRAGMA INDEX_INFO(`audit_logs_status`)
+Executing (default): PRAGMA INDEX_INFO(`audit_logs_ip_address`)
+Executing (default): SELECT name FROM sqlite_master WHERE type='table' AND name='refresh_tokens';
+Executing (default): PRAGMA INDEX_LIST(`refresh_tokens`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_refresh_tokens_1`)
+Executing (default): PRAGMA INDEX_INFO(`sqlite_autoindex_refresh_tokens_2`)
+Executing (default): PRAGMA INDEX_INFO(`refresh_tokens_user_id`)
+Executing (default): PRAGMA INDEX_INFO(`refresh_tokens_token`)
+Executing (default): PRAGMA INDEX_INFO(`refresh_tokens_expires_at`)
+Executing (default): PRAGMA INDEX_INFO(`refresh_tokens_is_revoked`)
+Γ£ô Database synchronized successfully
+Γ£ô Application initialized successfully
+
+==================================================
+≡ƒÜÇ SECURE FILE STORAGE BACKEND
+==================================================
+Environment: development
+Server running on port: 5000
+API Version: v1
+API URL: http://localhost:5000/api/v1
+==================================================
+
+Γ£ô Server is ready to accept requests
+
+2026-03-16 21:10:33 [[32minfo[39m]: Incoming request {"service":"secure-file-storage","method":"GET","path":"/api/v1/auth/captcha","ip":"::1","userAgent":"node"}

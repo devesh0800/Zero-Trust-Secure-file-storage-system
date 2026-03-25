@@ -1,0 +1,50 @@
+{
+  "step": "Login",
+  "error": {
+    "success": false,
+    "status": "error",
+    "message": "Validation error",
+    "stack": "Error\n    at Database.<anonymous> (C:\\Users\\DEVESH\\Desktop\\Devesh\\Devesh\\secure-file-storage\\node_modules\\sequelize\\lib\\dialects\\sqlite\\query.js:185:27)\n    at C:\\Users\\DEVESH\\Desktop\\Devesh\\Devesh\\secure-file-storage\\node_modules\\sequelize\\lib\\dialects\\sqlite\\query.js:183:50\n    at new Promise (<anonymous>)\n    at Query.run (C:\\Users\\DEVESH\\Desktop\\Devesh\\Devesh\\secure-file-storage\\node_modules\\sequelize\\lib\\dialects\\sqlite\\query.js:183:12)\n    at C:\\Users\\DEVESH\\Desktop\\Devesh\\Devesh\\secure-file-storage\\node_modules\\sequelize\\lib\\sequelize.js:315:28\n    at async SQLiteQueryInterface.insert (C:\\Users\\DEVESH\\Desktop\\Devesh\\Devesh\\secure-file-storage\\node_modules\\sequelize\\lib\\dialects\\abstract\\query-interface.js:308:21)\n    at async model.save (C:\\Users\\DEVESH\\Desktop\\Devesh\\Devesh\\secure-file-storage\\node_modules\\sequelize\\lib\\model.js:2490:35)\n    at async refresh_tokens.create (C:\\Users\\DEVESH\\Desktop\\Devesh\\Devesh\\secure-file-storage\\node_modules\\sequelize\\lib\\model.js:1362:12)\n    at async generateTokenPair (file:///C:/Users/DEVESH/Desktop/Devesh/Devesh/secure-file-storage/src/utils/jwt.js:91:5)\n    at async Object.loginUser (file:///C:/Users/DEVESH/Desktop/Devesh/Devesh/secure-file-storage/src/services/authService.js:144:20)",
+    "error": {
+      "name": "SequelizeUniqueConstraintError",
+      "errors": [
+        {
+          "message": "token must be unique",
+          "type": "unique violation",
+          "path": "token",
+          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2M2NkOGE1OS02NjE3LTRkZTYtYmRhYS03M2E2ZDc2ZjI5MTIiLCJlbWFpbCI6InRlc3R1c2VyXzE3NzI4MTQ2MzMwNDFAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc3MjgxNDYzMywiZXhwIjoxNzczNDE5NDMzLCJhdWQiOiJzZWN1cmUtZmlsZS1zdG9yYWdlLXVzZXJzIiwiaXNzIjoic2VjdXJlLWZpbGUtc3RvcmFnZSJ9.pyvPQ4nYk3QJceYVkN8prOWjdVHfzzLs2e9LN-KiHiE",
+          "origin": "DB",
+          "instance": {
+            "id": "d1a3968a-02f5-4c87-9a8b-53d31f901a7b",
+            "is_revoked": false,
+            "created_at": "2026-03-06T16:30:33.649Z",
+            "user_id": "63cd8a59-6617-4de6-bdaa-73a6d76f2912",
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2M2NkOGE1OS02NjE3LTRkZTYtYmRhYS03M2E2ZDc2ZjI5MTIiLCJlbWFpbCI6InRlc3R1c2VyXzE3NzI4MTQ2MzMwNDFAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsImlhdCI6MTc3MjgxNDYzMywiZXhwIjoxNzczNDE5NDMzLCJhdWQiOiJzZWN1cmUtZmlsZS1zdG9yYWdlLXVzZXJzIiwiaXNzIjoic2VjdXJlLWZpbGUtc3RvcmFnZSJ9.pyvPQ4nYk3QJceYVkN8prOWjdVHfzzLs2e9LN-KiHiE",
+            "expires_at": "2026-03-13T16:30:33.649Z",
+            "ip_address": "::1",
+            "user_agent": "node"
+          },
+          "validatorKey": "not_unique",
+          "validatorName": null,
+          "validatorArgs": []
+        }
+      ],
+      "parent": {
+        "errno": 19,
+        "code": "SQLITE_CONSTRAINT",
+        "sql": "INSERT INTO `refresh_tokens` (`id`,`user_id`,`token`,`expires_at`,`is_revoked`,`ip_address`,`user_agent`,`created_at`) VALUES ($1,$2,$3,$4,$5,$6,$7,$8);"
+      },
+      "original": {
+        "errno": 19,
+        "code": "SQLITE_CONSTRAINT",
+        "sql": "INSERT INTO `refresh_tokens` (`id`,`user_id`,`token`,`expires_at`,`is_revoked`,`ip_address`,`user_agent`,`created_at`) VALUES ($1,$2,$3,$4,$5,$6,$7,$8);"
+      },
+      "fields": [
+        "token"
+      ],
+      "sql": "INSERT INTO `refresh_tokens` (`id`,`user_id`,`token`,`expires_at`,`is_revoked`,`ip_address`,`user_agent`,`created_at`) VALUES ($1,$2,$3,$4,$5,$6,$7,$8);",
+      "statusCode": 500,
+      "status": "error"
+    }
+  }
+}

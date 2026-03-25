@@ -1,0 +1,8 @@
+The requested module '@google/genai' does not provide an export named 'GoogleGenerativeAI'
+file:///C:/Users/DEVESH/Desktop/Devesh/Devesh/secure-file-storage/src/utils/aiVerification.js:1
+import { GoogleGenerativeAI } from '@google/genai';
+         ^^^^^^^^^^^^^^^^^^
+SyntaxError: The requested module '@google/genai' does not provide an export named 'GoogleGenerativeAI'
+    at #asyncInstantiate (node:internal/modules/esm/module_job:319:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:422:5)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:661:26)

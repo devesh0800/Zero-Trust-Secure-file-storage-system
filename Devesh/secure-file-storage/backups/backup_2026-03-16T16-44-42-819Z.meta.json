@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-03-16T16-44-42-819Z",
+  "filename": "backup_2026-03-16T16-44-42-819Z.enc",
+  "originalSize": 212992,
+  "encryptedSize": 213008,
+  "iv": "ec3f780d3c92d144f8b2823e65aa6f94",
+  "algorithm": "aes-256-cbc",
+  "createdAt": "2026-03-16T16:44:42.821Z"
+}

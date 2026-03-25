@@ -1,0 +1,32 @@
+﻿1. Registering test user...
+node : Failed to fetch 
+captcha 
+ReferenceError: 
+registerCaptchaId is 
+not defined
+At line:1 char:1
++ node test-mfa.js > 
+test-output-2-utf8.txt 
+2>&1
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (Failed to fet   
+ ch... is not defin    
+ed:String) [], Rem    
+oteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+    at testMfaFlow (fil
+e:///C:/Users/DEVESH/De
+sktop/Devesh/Devesh/sec
+ure-file-storage/test-m
+fa.js:19:25)
+    at process.processT
+icksAndRejections (node
+:internal/process/task_
+queues:104:5)

@@ -1,0 +1,26 @@
+﻿🚀 Starting MFA Integration Flow...
+
+--- 0. Fetching initial CSRF token ---
+--- 1. Registering mfa_test_1772861826170@example.com ---
+✅ PASS: Registration
+
+--- 2. Setting up MFA ---
+✅ PASS: MFA /setup
+
+--- 3. Enabling MFA ---
+✅ PASS: MFA /enable
+
+--- 4. Login (MFA Expected) ---
+✅ PASS: Login returned mfa_required
+
+--- 5. Verify MFA Login ---
+✅ PASS: Verify MFA Login successful
+
+--- 6. Verify Backup Code Login ---
+✅ PASS: Login via Backup Code successful
+
+--- 7. Disabling MFA ---
+✅ PASS: MFA successfully disabled
+
+🎉 ALL MFA ENDPOINTS TESTED SUCCESSFULLY! 🎉
+

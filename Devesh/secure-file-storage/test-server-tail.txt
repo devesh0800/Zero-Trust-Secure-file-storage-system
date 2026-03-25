@@ -1,0 +1,50 @@
+﻿Executing (default): PRAGMA INDEX_INFO(`refresh_tokens_user_id`)
+Executing (default): PRAGMA INDEX_INFO(`refresh_tokens_token`)
+Executing (default): PRAGMA INDEX_INFO(`refresh_tokens_expires_at`)
+Executing (default): PRAGMA INDEX_INFO(`refresh_tokens_is_revoked`)
+Γ£ô Database synchronized successfully
+Γ£ô Application initialized successfully
+
+node:events:486
+      throw er; // 
+Unhandled 'error' event
+      ^
+
+Error: listen 
+EADDRINUSE: address 
+already in use :::5000
+    at Server.setupList
+enHandle [as _listen2] 
+(node:net:1948:16)
+    at listenInCluster 
+(node:net:2005:12)
+    at Server.listen 
+(node:net:2110:7)
+    at app.listen (C:\U
+sers\DEVESH\Desktop\Dev
+esh\Devesh\secure-file-
+storage\node_modules\ex
+press\lib\application.j
+s:635:24)
+    at startServer (fil
+e:///C:/Users/DEVESH/De
+sktop/Devesh/Devesh/sec
+ure-file-storage/src/se
+rver.js:171:24)
+Emitted 'error' event 
+on Server instance at:
+    at emitErrorNT 
+(node:net:1984:8)
+    at process.processT
+icksAndRejections (node
+:internal/process/task_
+queues:90:21) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::',
+  port: 5000
+}
+
+Node.js v24.14.0
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
