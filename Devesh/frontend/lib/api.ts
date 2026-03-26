@@ -135,11 +135,12 @@ export async function register(
     username: string, 
     captcha_id: string, 
     captcha_text: string, 
-    otp_code: string
+    otp_code: string,
+    public_key: string
 ) {
     const res = await request('/auth/register', {
         method: 'POST',
-        body: JSON.stringify({ email, password, username, captcha_id, captcha_text, otp_code }),
+        body: JSON.stringify({ email, password, username, captcha_id, captcha_text, otp_code, public_key }),
     });
     const data = await res.json();
     setAccessToken(data.data.accessToken);
@@ -431,6 +432,32 @@ export async function updatePhone(new_phone: string, otp_code?: string) {
     return data.data.user;
 }
 
+export async function changePassword(current_password: string, new_password: string) {
+    const res = await request('/profile/password', {
+        method: 'PUT',
+        body: JSON.stringify({ current_password, new_password }),
+    });
+    return res.json();
+}
+
+export async function getStorageStats() {
+    const res = await request('/profile/storage');
+    const data = await res.json();
+    return data.data;
+}
+
+export async function getActivityLog() {
+    const res = await request('/profile/activity');
+    const data = await res.json();
+    return data.data;
+}
+
+export async function getSecurityInfo() {
+    const res = await request('/profile/security');
+    const data = await res.json();
+    return data.data;
+}
+
 // ============ NOTIFICATION ENDPOINTS ============
 
 export async function getNotifications(page = 1, limit = 50) {
@@ -448,4 +475,155 @@ export async function markNotificationAsRead(id: string) {
 export async function markAllNotificationsAsRead() {
     const res = await request('/notifications/read-all', { method: 'PUT' });
     return res.json();
+}
+
+// ============ SHARING ENDPOINTS ============
+
+export async function createShare(fileId: string, options: { 
+    accessType?: 'public' | 'password_protected', 
+    expiresAt?: string, 
+    maxDownloads?: number, 
+    password?: string 
+}) {
+    const res = await request('/shares', {
+        method: 'POST',
+        body: JSON.stringify({ fileId, ...options }),
+    });
+    const data = await res.json();
+    return data.data; // { share_token }
+}
+
+export async function getSharedInfo(token: string) {
+    const res = await request(`/shares/${token}`);
+    const data = await res.json();
+    return data.data;
+}
+
+export async function downloadSharedFile(token: string, filename: string, password?: string) {
+    const res = await fetch(`${API_BASE}/shares/${token}/download${password ? `?password=${encodeURIComponent(password)}` : ''}`, {
+        method: password ? 'POST' : 'GET',
+        credentials: 'include',
+        ...(password ? { 
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password }) 
+        } : {})
+    });
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new ApiError(err.message || 'Download failed', res.status);
+    }
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+}
+
+// ==================== CONNECTIONS ====================
+
+export async function sendConnectionRequest(identifier: string) {
+    const res = await request('/connections/request', {
+        method: 'POST',
+        body: JSON.stringify({ identifier }),
+    });
+    const data = await res.json();
+    return data.data;
+}
+
+export async function getConnections() {
+    const res = await request('/connections');
+    const data = await res.json();
+    return data.data;
+}
+
+export async function acceptConnection(connectionId: string) {
+    const res = await request(`/connections/${connectionId}/accept`, { method: 'PUT' });
+    const data = await res.json();
+    return data.data;
+}
+
+export async function rejectConnection(connectionId: string) {
+    const res = await request(`/connections/${connectionId}/reject`, { method: 'PUT' });
+    const data = await res.json();
+    return data.data;
+}
+
+export async function revokeConnection(connectionId: string) {
+    const res = await request(`/connections/${connectionId}`, { method: 'DELETE' });
+    const data = await res.json();
+    return data;
+}
+
+export async function getSafetyNumber(connectionId: string) {
+    const res = await request(`/connections/${connectionId}/safety-number`);
+    const data = await res.json();
+    return data.data;
+}
+
+export async function verifyConnection(connectionId: string) {
+    const res = await request(`/connections/${connectionId}/verify`, { method: 'PUT' });
+    const data = await res.json();
+    return data.data;
+}
+
+// ==================== ADVANCED P2PE SHARES ====================
+
+export async function createAdvancedShare(payload: {
+    fileId: string; receiverId: string; encryptedAesKey: string;
+    permissionMode: string; expiresAt?: string;
+}) {
+    const res = await request('/advanced-shares', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    return data.data;
+}
+
+export async function getSentShares() {
+    const res = await request('/advanced-shares/sent');
+    const data = await res.json();
+    return data.data;
+}
+
+export async function getReceivedShares() {
+    const res = await request('/advanced-shares/received');
+    const data = await res.json();
+    return data.data;
+}
+
+export async function acceptAdvancedShare(shareId: string) {
+    const res = await request(`/advanced-shares/${shareId}/accept`, { method: 'PUT' });
+    const data = await res.json();
+    return data.data;
+}
+
+export async function rejectAdvancedShare(shareId: string) {
+    const res = await request(`/advanced-shares/${shareId}/reject`, { method: 'PUT' });
+    const data = await res.json();
+    return data;
+}
+
+export async function revokeAdvancedShare(shareId: string) {
+    const res = await request(`/advanced-shares/${shareId}/revoke`, { method: 'PUT' });
+    const data = await res.json();
+    return data.data;
+}
+
+export async function trackShareView(shareId: string) {
+    const res = await request(`/advanced-shares/${shareId}/track-view`, { method: 'PUT' });
+    const data = await res.json();
+    return data.data;
+}
+
+export async function trackShareDownload(shareId: string) {
+    const res = await request(`/advanced-shares/${shareId}/track-download`, { method: 'PUT' });
+    const data = await res.json();
+    return data.data;
 }

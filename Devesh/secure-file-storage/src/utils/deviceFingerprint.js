@@ -99,48 +99,42 @@ export async function checkAndRegisterDevice(KnownDevice, userId, userAgent, ipA
     const fingerprint = generateFingerprint(userAgent, ipAddress);
     const deviceName = parseDeviceName(userAgent);
 
-    // Check if device is already known
-    let device = await KnownDevice.findOne({
+    // Get or Create device — register it if not exists
+    const [deviceEntry, created] = await KnownDevice.findOrCreate({
         where: {
             user_id: userId,
             device_fingerprint: fingerprint
+        },
+        defaults: {
+            device_name: deviceName,
+            ip_address: ipAddress,
+            user_agent: userAgent,
+            is_trusted: true,
+            first_seen: new Date(),
+            last_used: new Date(),
+            login_count: 1
         }
     });
 
-    if (device) {
-        // Known device — update last used
-        await device.update({
+    if (!created) {
+        // Was already there, update it
+        await deviceEntry.update({
             last_used: new Date(),
-            login_count: device.login_count + 1,
+            login_count: deviceEntry.login_count + 1,
             ip_address: ipAddress
         });
-
-        return { isNew: false, device };
+    } else {
+        logSecurityEvent('new_device_login', {
+            userId,
+            deviceName,
+            fingerprint: fingerprint.substring(0, 16) + '...',
+            ip: ipAddress,
+            severity: 'HIGH',
+            message: `⚠️  NEW DEVICE DETECTED for user ${userId}: ${deviceName} from IP ${ipAddress}`
+        });
     }
 
-    // New device — register it and raise alert
-    device = await KnownDevice.create({
-        user_id: userId,
-        device_fingerprint: fingerprint,
-        device_name: deviceName,
-        ip_address: ipAddress,
-        user_agent: userAgent,
-        is_trusted: true,
-        first_seen: new Date(),
-        last_used: new Date(),
-        login_count: 1
-    });
-
-    logSecurityEvent('new_device_login', {
-        userId,
-        deviceName,
-        fingerprint: fingerprint.substring(0, 16) + '...',
-        ip: ipAddress,
-        severity: 'HIGH',
-        message: `⚠️  NEW DEVICE DETECTED for user ${userId}: ${deviceName} from IP ${ipAddress}`
-    });
-
-    return { isNew: true, device };
+    return { isNew: created, device: deviceEntry };
 }
 
 export default { generateFingerprint, parseDeviceName, checkAndRegisterDevice };

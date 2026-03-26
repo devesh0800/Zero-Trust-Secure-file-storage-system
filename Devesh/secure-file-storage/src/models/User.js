@@ -117,6 +117,12 @@ const User = sequelize.define('users', {
         type: DataTypes.STRING,
         allowNull: true
     },
+    // Advanced Security: Public Key for Asymmetric Encryption
+    public_key: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        comment: 'RSA-OAEP Public Key for secure sharing'
+    },
     created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
