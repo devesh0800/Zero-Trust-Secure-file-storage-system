@@ -54,28 +54,30 @@ export const generateCaptcha = (req, res) => {
  * Helper to verify captcha
  */
 export const verifyCaptcha = (id, text) => {
+    // Development Bypass: If in development, allow '0000' as a universal pass
+    // This solves the issue of captchas expiring/erasing on server restart.
+    if (process.env.NODE_ENV === 'development' && text === '0000') {
+        return true;
+    }
+
     if (!id || !text) return false;
 
     const stored = captchaStore.get(id);
-    console.log(`[Captcha] Verifying ID: ${id}, Text: ${text}`);
-    if (stored) {
-        console.log(`[Captcha] Stored text: ${stored.text}, Current time: ${Date.now()}, Expires: ${stored.expires}`);
+    
+    // In development mode, if we have the ID but server restarted, we still might want to allow it 
+    // if the user types '0000'. (Handled above).
+    
+    if (!stored) {
+        console.warn(`[Captcha] ID ${id} not found in store. Server might have restarted.`);
+        return false;
     }
-
-    if (!stored) return false;
 
     if (Date.now() > stored.expires) {
         captchaStore.delete(id);
         return false;
     }
 
-    // Bypass for automated testing
-    if (process.env.NODE_ENV === 'development') {
-        captchaStore.delete(id);
-        return true;
-    }
-
-    // Convert both to lowercase to prevent case sensitivity issues
+    // Standard verification
     const isValid = (text.toLowerCase() === 'test_123' || stored.text === text.toLowerCase());
 
     // Captcha should be single-use

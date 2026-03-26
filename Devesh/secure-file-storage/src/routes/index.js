@@ -6,6 +6,9 @@ import mfaRoutes from './mfaRoutes.js';
 import otpRoutes from './otpRoutes.js';
 import profileRoutes from './profileRoutes.js';
 import notificationRoutes from './notificationRoutes.js';
+import shareRoutes from './shareRoutes.js';
+import connectionRoutes from './connectionRoutes.js';
+import advancedShareRoutes from './advancedShareRoutes.js';
 
 const router = express.Router();
 
@@ -21,6 +24,9 @@ router.use('/mfa', mfaRoutes);
 router.use('/otp', otpRoutes);
 router.use('/profile', profileRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/shares', shareRoutes);
+router.use('/connections', connectionRoutes);
+router.use('/advanced-shares', advancedShareRoutes);
 
 // Health check endpoint
 router.get('/health', (req, res) => {

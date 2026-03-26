@@ -14,11 +14,8 @@ import QRCode from 'qrcode';
  * Handles all authentication business logic
  */
 
-/**
- * Register a new user
- */
 export async function registerUser(userData, otpCode, ipAddress, userAgent) {
-    const { email, password, username } = userData;
+    const { email, password, username, public_key } = userData;
 
     // Verify OTP first
     await otpService.verifyOtp(email, 'registration', otpCode);
@@ -39,7 +36,8 @@ export async function registerUser(userData, otpCode, ipAddress, userAgent) {
     const user = await User.create({
         email,
         username,
-        password_hash: password
+        password_hash: password,
+        public_key: public_key || null
     });
 
     // Log registration

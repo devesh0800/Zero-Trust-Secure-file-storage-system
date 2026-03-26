@@ -271,6 +271,9 @@ export default function LoginPage() {
                                     </button>
                                 </div>
                                 <input type="text" value={captchaText} onChange={(e) => setCaptchaText(e.target.value)} placeholder="Enter characters above" required className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white outline-none focus:border-violet-500/50" />
+                                {process.env.NODE_ENV === 'development' && (
+                                    <p className="text-[10px] text-zinc-500 text-center">Development Tip: Type <code className="text-violet-400">0000</code> to bypass</p>
+                                )}
                             </div>
                             {error && <div className="rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">{error}</div>}
                             <button type="submit" disabled={isLoading} className="w-full rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:brightness-110 disabled:opacity-60">

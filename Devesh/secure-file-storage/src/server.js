@@ -49,9 +49,8 @@ async function initializeApp() {
         console.log('Testing database connection...');
         await testConnection();
 
-        // Sync database models
-        console.log('Synchronizing database...');
-        await syncDatabase(); // Disabled { alter: true } to prevent sqlite bugs
+        process.env.DB_SYNC_ALTER = 'true';
+        await syncDatabase({ alter: true });
 
         console.log('✓ Application initialized successfully\n');
     } catch (error) {

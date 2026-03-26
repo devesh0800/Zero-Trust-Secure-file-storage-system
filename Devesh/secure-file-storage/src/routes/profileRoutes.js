@@ -1,5 +1,5 @@
 import express from 'express';
-import { getProfile, updateProfile, updateEmail, updatePhone } from '../controllers/profileController.js';
+import { getProfile, updateProfile, updateEmail, updatePhone, changePassword, getStorageStats, getActivityLog, getSecurityInfo } from '../controllers/profileController.js';
 import { authenticate } from '../middlewares/auth.js';
 import { apiLimiter } from '../middlewares/rateLimiter.js';
 
@@ -32,6 +32,14 @@ router.put('/email', apiLimiter, updateEmail);
  * @desc    Securely update phone (requires OTP)
  * @access  Private
  */
-router.put('/phone', apiLimiter, updatePhone);
+/**
+ * @route   PUT /api/v1/profile/password
+ * @desc    Change password
+ * @access  Private
+ */
+router.put('/password', apiLimiter, changePassword);
+router.get('/storage', apiLimiter, getStorageStats);
+router.get('/activity', apiLimiter, getActivityLog);
+router.get('/security', apiLimiter, getSecurityInfo);
 
 export default router;

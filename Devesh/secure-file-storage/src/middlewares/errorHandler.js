@@ -36,12 +36,23 @@ export function errorHandler(err, req, res, next) {
     err.status = err.status || 'error';
 
     // Log error
-    logError(err, {
-        path: req.path,
-        method: req.method,
-        ip: req.ip,
-        userId: req.user?.id
-    });
+    if (err.name === 'SequelizeValidationError' || err.name === 'SequelizeUniqueConstraintError') {
+        err.statusCode = 400;
+        err.message = err.errors?.map(e => e.message).join(', ') || err.message;
+        logError(err, {
+            path: req.path,
+            method: req.method,
+            ip: req.ip,
+            validationErrors: err.errors
+        });
+    } else {
+        logError(err, {
+            path: req.path,
+            method: req.method,
+            ip: req.ip,
+            userId: req.user?.id
+        });
+    }
 
     // Development error response (detailed)
     if (config.env === 'development') {
