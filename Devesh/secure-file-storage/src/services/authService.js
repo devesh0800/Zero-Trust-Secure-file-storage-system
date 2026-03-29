@@ -15,7 +15,7 @@ import QRCode from 'qrcode';
  */
 
 export async function registerUser(userData, otpCode, ipAddress, userAgent) {
-    const { email, password, username, public_key } = userData;
+    const { email, password, username, public_key, security_pin } = userData;
 
     // Verify OTP first
     await otpService.verifyOtp(email, 'registration', otpCode);
@@ -32,11 +32,12 @@ export async function registerUser(userData, otpCode, ipAddress, userAgent) {
         throw new AppError('Username already taken', 409);
     }
 
-    // Create user (password will be hashed by model hook, unique_share_id generated)
+    // Create user (password/pin will be hashed by model hook)
     const user = await User.create({
         email,
         username,
         password_hash: password,
+        security_pin_hash: security_pin || null,
         public_key: public_key || null
     });
 

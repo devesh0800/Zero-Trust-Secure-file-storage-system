@@ -136,11 +136,12 @@ export async function register(
     captcha_id: string, 
     captcha_text: string, 
     otp_code: string,
-    public_key: string
+    public_key: string,
+    security_pin: string
 ) {
     const res = await request('/auth/register', {
         method: 'POST',
-        body: JSON.stringify({ email, password, username, captcha_id, captcha_text, otp_code, public_key }),
+        body: JSON.stringify({ email, password, username, captcha_id, captcha_text, otp_code, public_key, security_pin }),
     });
     const data = await res.json();
     setAccessToken(data.data.accessToken);
@@ -330,15 +331,23 @@ export async function getFileMetadata(fileId: string) {
     return res.json();
 }
 
-export async function downloadFile(fileId: string, filename: string) {
+export async function downloadFile(fileId: string, filename: string, pin?: string) {
     const token = getAccessToken();
     const res = await fetch(`${API_BASE}/files/${fileId}/download`, {
         credentials: 'include',
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            ...(pin ? { 'x-security-pin': pin } : {}),
+        },
     });
 
     if (!res.ok) {
-        throw new ApiError('Download failed', res.status);
+        let errorMessage = 'Download failed';
+        try {
+            const errorData = await res.json();
+            errorMessage = errorData.message || errorMessage;
+        } catch (e) { /* ignore parse error if not JSON */ }
+        throw new ApiError(errorMessage, res.status);
     }
 
     const blob = await res.blob();
@@ -626,4 +635,17 @@ export async function trackShareDownload(shareId: string) {
     const res = await request(`/advanced-shares/${shareId}/track-download`, { method: 'PUT' });
     const data = await res.json();
     return data.data;
+}
+
+export async function requestPinUpdateOtp() {
+    return await request('/profile/security-pin/request-otp', {
+        method: 'POST'
+    });
+}
+
+export async function updateSecurityPin(data: { new_pin: string, otp_code?: string, mfa_token?: string }) {
+    return await request('/profile/security-pin/update', {
+        method: 'POST',
+        body: JSON.stringify(data)
+    });
 }

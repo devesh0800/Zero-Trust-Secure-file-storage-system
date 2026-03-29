@@ -15,7 +15,7 @@ import { AppError } from '../middlewares/errorHandler.js';
  * @access  Public
  */
 export const register = asyncHandler(async (req, res) => {
-    const { email, password, username, captcha_id, captcha_text, otp_code, public_key } = req.body;
+    const { email, password, username, captcha_id, captcha_text, otp_code, public_key, security_pin } = req.body;
 
     // OTP check required for registration
     if (!otp_code) {
@@ -28,7 +28,7 @@ export const register = asyncHandler(async (req, res) => {
     }
 
     const result = await authService.registerUser(
-        { email, password, username, public_key },
+        { email, password, username, public_key, security_pin },
         otp_code,
         req.ip,
         req.get('user-agent')

@@ -117,6 +117,11 @@ const User = sequelize.define('users', {
         type: DataTypes.STRING,
         allowNull: true
     },
+    // User Security PIN for downloads and high-risk actions
+    security_pin_hash: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     // Advanced Security: Public Key for Asymmetric Encryption
     public_key: {
         type: DataTypes.TEXT,
@@ -146,6 +151,11 @@ User.beforeCreate(async (user) => {
         user.password_hash = await bcrypt.hash(user.password_hash, config.security.bcryptRounds);
     }
     
+    // Hash security PIN if provided
+    if (user.security_pin_hash) {
+        user.security_pin_hash = await bcrypt.hash(user.security_pin_hash, config.security.bcryptRounds);
+    }
+    
     // Generate a unique 8-character alphanumeric string for sharing
     let isUnique = false;
     while (!isUnique) {
@@ -165,6 +175,9 @@ User.beforeUpdate(async (user) => {
     if (user.changed('password_hash')) {
         user.password_hash = await bcrypt.hash(user.password_hash, config.security.bcryptRounds);
     }
+    if (user.changed('security_pin_hash')) {
+        user.security_pin_hash = await bcrypt.hash(user.security_pin_hash, config.security.bcryptRounds);
+    }
 });
 
 /**
@@ -172,6 +185,17 @@ User.beforeUpdate(async (user) => {
  */
 User.prototype.verifyPassword = async function (password) {
     return await bcrypt.compare(password, this.password_hash);
+};
+
+/**
+ * Instance method to verify security PIN
+ */
+User.prototype.verifySecurityPin = async function (pin) {
+    if (!this.security_pin_hash) {
+        console.log('[DEBUG] Security hash is missing for user.');
+        return false; // Force set a PIN or fail if hash is missing
+    }
+    return await bcrypt.compare(pin, this.security_pin_hash);
 };
 
 /**
@@ -215,6 +239,7 @@ User.prototype.toJSON = function () {
     delete values.encrypted_user_key;
     delete values.user_key_iv;
     delete values.user_key_auth_tag;
+    delete values.security_pin_hash;
     delete values.mfa_secret;
     delete values.mfa_backup_codes;
     return values;

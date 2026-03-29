@@ -41,5 +41,7 @@ router.put('/password', apiLimiter, changePassword);
 router.get('/storage', apiLimiter, getStorageStats);
 router.get('/activity', apiLimiter, getActivityLog);
 router.get('/security', apiLimiter, getSecurityInfo);
+router.post('/security-pin/request-otp', apiLimiter, requestPinUpdateOtp);
+router.post('/security-pin/update', apiLimiter, updateSecurityPin);
 
 export default router;

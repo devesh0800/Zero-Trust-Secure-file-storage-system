@@ -83,6 +83,30 @@ export const downloadFile = asyncHandler(async (req, res) => {
                 message: 'Authentication required'
             });
         }
+        
+        // Security PIN verification
+        const securityPin = req.headers['x-security-pin'] || req.query.pin;
+        const hasHash = !!req.user.security_pin_hash;
+        console.log(`[DEBUG] PIN Strict Check - User: ${req.user.email}, HasHash: ${hasHash}, PinProvided: ${!!securityPin}`);
+        
+        // If a hash exists, verify against it. 
+        // If NO hash exists (old user), for security we will skip until they set one,
+        // UNLESS we want to force them. 
+        if (hasHash) {
+            if (!securityPin) {
+                return res.status(403).json({ success: false, message: 'Security PIN required' });
+            }
+            const isPinValid = await req.user.verifySecurityPin(securityPin);
+            if (!isPinValid) {
+                return res.status(403).json({ success: false, message: 'Invalid PIN' });
+            }
+        } else {
+            // If user has NO pin but they're trying to use one, we should probably warn or block?
+            // Actually, if they haven't set one yet, we let them through to avoid lockouts,
+            // but we'll ask them to check registration.
+            console.log('[DEBUG] No PIN set for user, bypassing security check.');
+        }
+        
         userId = req.user.id;
     }
 
@@ -93,9 +117,12 @@ export const downloadFile = asyncHandler(async (req, res) => {
         req.get('user-agent')
     );
 
+    // Sanitize filename to prevent header errors
+    const safeFilename = filename.replace(/[^\x20-\x7E]/g, '');
+    
     // Set headers for file download
-    res.setHeader('Content-Type', mimetype);
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Type', mimetype || 'application/octet-stream');
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(safeFilename)}"`);
     res.setHeader('Content-Length', content.length);
 
     // Send decrypted file

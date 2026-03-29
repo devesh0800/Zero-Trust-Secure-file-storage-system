@@ -30,7 +30,7 @@ interface AuthContextType {
     login: (identifier: string, password: string, captchaId: string, captchaText: string) => Promise<any>;
     verifyMfa: (tempToken: string, mfaToken: string) => Promise<any>;
     verifyLoginOtp: (tempToken: string, emailOtp: string, phoneOtp?: string, newDevice?: boolean) => Promise<any>;
-    register: (email: string, password: string, username: string, captchaId: string, captchaText: string, otpCode: string, publicKey: string) => Promise<any>;
+    register: (email: string, password: string, username: string, captchaId: string, captchaText: string, otpCode: string, publicKey: string, securityPin: string) => Promise<any>;
     getCaptcha: () => Promise<any>;
     logout: (reason?: string) => Promise<void>;
     refreshUser: () => Promise<void>;
@@ -138,9 +138,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return result;
     };
 
-    const registerFn = async (email: string, password: string, username: string, captchaId: string, captchaText: string, otpCode: string, publicKey: string) => {
+    const registerFn = async (email: string, password: string, username: string, captchaId: string, captchaText: string, otpCode: string, publicKey: string, securityPin: string) => {
         clearMessage();
-        const result = await api.register(email, password, username, captchaId, captchaText, otpCode, publicKey);
+        const result = await api.register(email, password, username, captchaId, captchaText, otpCode, publicKey, securityPin);
         await refreshUser();
         return result;
     };

@@ -59,8 +59,12 @@ export default function Navbar() {
                                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                 className="flex items-center gap-3 rounded-full border border-white/5 bg-white/5 p-1 transition-all hover:bg-white/10 active:scale-95 pr-4"
                             >
-                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-[10px] font-black text-white uppercase shadow-lg shadow-blue-500/20">
-                                    {user?.full_name?.[0] || user?.username?.[0] || 'U'}
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-[10px] font-black text-white uppercase shadow-lg shadow-blue-500/20 overflow-hidden border border-white/5">
+                                    {user?.profile_pic ? (
+                                        <img src={user.profile_pic} alt="Profile" className="h-full w-full object-cover" />
+                                    ) : (
+                                        user?.full_name?.[0] || user?.username?.[0] || 'U'
+                                    )}
                                 </div>
                                 <div className="hidden text-left sm:block">
                                     <p className="text-[11px] font-black text-white tracking-tight leading-none uppercase">{user?.full_name || user?.username}</p>
@@ -82,8 +86,12 @@ export default function Navbar() {
                                     {/* Mini Profile Header */}
                                     <div className="bg-gradient-to-br from-violet-500/10 to-indigo-600/10 p-5 border-b border-white/5">
                                         <div className="flex items-center gap-4">
-                                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 text-lg font-bold text-white uppercase shadow-lg shadow-violet-500/30">
-                                                {user?.username?.[0] || user?.full_name?.[0] || 'U'}
+                                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 text-lg font-bold text-white uppercase shadow-lg shadow-violet-500/30 overflow-hidden border border-white/10">
+                                                {user?.profile_pic ? (
+                                                    <img src={user.profile_pic} alt="Profile" className="h-full w-full object-cover" />
+                                                ) : (
+                                                    user?.username?.[0] || user?.full_name?.[0] || 'U'
+                                                )}
                                             </div>
                                             <div className="flex-1 overflow-hidden">
                                                 <p className="truncate text-sm font-bold text-white">{user?.full_name || user?.username}</p>

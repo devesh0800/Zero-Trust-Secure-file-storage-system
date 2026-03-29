@@ -15,7 +15,8 @@ const OTP_EXPIRY = {
     login_email: 10 * 60 * 1000, // 10 mins
     login_phone: 10 * 60 * 1000, // 10 mins
     update_email: 15 * 60 * 1000, // 15 mins
-    update_phone: 15 * 60 * 1000  // 15 mins
+    update_phone: 15 * 60 * 1000, // 15 mins
+    update_pin: 15 * 60 * 1000   // 15 mins
 };
 
 /**

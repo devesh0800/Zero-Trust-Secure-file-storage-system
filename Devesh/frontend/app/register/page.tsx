@@ -82,7 +82,7 @@ export default function RegisterPage() {
             const publicKeyBase64 = await cryptoHelpers.exportPublicKey(publicKey);
 
             // 4. Register on Server
-            await register(email, password, username, captchaId, captchaText, otpCode, publicKeyBase64);
+            await register(email, password, username, captchaId, captchaText, otpCode, publicKeyBase64, securityPin);
             
             // 5. Save Encrypted Private Key Locally
             localStorage.setItem('vault_identity_key', JSON.stringify(encryptedBlob));

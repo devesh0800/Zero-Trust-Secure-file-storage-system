@@ -1,6 +1,8 @@
 import { User, File, AuditLog } from '../models/index.js';
 import otpService from '../services/otpService.js';
 import { asyncHandler, AppError } from '../middlewares/errorHandler.js';
+import speakeasy from 'speakeasy';
+import { logSecurityEvent } from '../utils/logger.js';
 
 /**
  * Get the current user's profile
@@ -21,17 +23,17 @@ export const getProfile = asyncHandler(async (req, res) => {
 });
 
 /**
- * Update basic profile details (no high-security items like email/phone/password)
+ * Update basic profile details (no high-security items like email/password)
  */
 export const updateProfile = asyncHandler(async (req, res) => {
-    const { full_name, username, gender, dob, profile_pic } = req.body;
+    const { full_name, gender, dob, profile_pic, phone_number } = req.body;
     const user = await User.findByPk(req.user.id);
 
-    if (full_name) user.full_name = full_name;
-    if (username) user.username = username;
-    if (gender) user.gender = gender;
-    if (dob) user.dob = dob;
-    if (profile_pic) user.profile_pic = profile_pic;
+    if (full_name !== undefined) user.full_name = full_name;
+    if (gender !== undefined) user.gender = gender;
+    if (dob !== undefined) user.dob = dob;
+    if (profile_pic !== undefined) user.profile_pic = profile_pic;
+    if (phone_number !== undefined) user.phone_number = phone_number;
 
     await user.save();
 
@@ -133,7 +135,7 @@ export const getStorageStats = asyncHandler(async (req, res) => {
     // Get all files
     const files = await File.findAll({
         where: { user_id: userId, is_deleted: false },
-        attributes: ['file_size', 'mime_type', 'original_filename', 'file_extension', 'created_at']
+        attributes: ['id', 'file_size', 'mime_type', 'original_filename', 'file_extension', 'created_at']
     });
 
     const totalFiles = files.length;
@@ -233,6 +235,61 @@ export const getSecurityInfo = asyncHandler(async (req, res) => {
     });
 });
 
+/**
+ * Request OTP for PIN Update
+ */
+export const requestPinUpdateOtp = asyncHandler(async (req, res) => {
+    const user = await User.findByPk(req.user.id);
+    const result = await otpService.sendOtp(user.email, 'update_pin');
+    res.status(200).json(result);
+});
+
+/**
+ * Update Security PIN
+ * Requires MFA token if enabled, otherwise requires Email OTP
+ */
+export const updateSecurityPin = asyncHandler(async (req, res) => {
+    const { new_pin, otp_code, mfa_token } = req.body;
+    const user = await User.findByPk(req.user.id);
+
+    if (!new_pin || new_pin.length !== 6) {
+        throw new AppError('New 6-digit PIN is required', 400);
+    }
+
+    // Verify identity: MFA or OTP
+    if (user.mfa_enabled) {
+        if (!mfa_token) {
+            throw new AppError('MFA token is required to update PIN', 400);
+        }
+        const verified = speakeasy.totp.verify({
+            secret: user.mfa_secret,
+            encoding: 'base32',
+            token: mfa_token,
+            window: 1
+        });
+        if (!verified) {
+            logSecurityEvent('pin_update_mfa_failed', { userId: user.id });
+            throw new AppError('Invalid MFA token', 401);
+        }
+    } else {
+        if (!otp_code) {
+            throw new AppError('Email OTP is required to update PIN', 400);
+        }
+        await otpService.verifyOtp(user.email, 'update_pin', otp_code);
+    }
+
+    // Update PIN (hashed by model hook)
+    user.security_pin_hash = new_pin;
+    await user.save();
+
+    logSecurityEvent('security_pin_updated', { userId: user.id });
+
+    res.status(200).json({
+        success: true,
+        message: 'Security PIN updated successfully'
+    });
+});
+
 export default {
     getProfile,
     updateProfile,
@@ -241,5 +298,7 @@ export default {
     changePassword,
     getStorageStats,
     getActivityLog,
-    getSecurityInfo
+    getSecurityInfo,
+    requestPinUpdateOtp,
+    updateSecurityPin
 };

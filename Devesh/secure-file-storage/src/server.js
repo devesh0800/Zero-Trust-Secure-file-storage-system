@@ -49,8 +49,9 @@ async function initializeApp() {
         console.log('Testing database connection...');
         await testConnection();
 
-        process.env.DB_SYNC_ALTER = 'true';
-        await syncDatabase({ alter: true });
+        // Synchronize database models
+        // Use alter: false to prevent SQLite validation errors with existing data
+        await syncDatabase({ force: false, alter: false });
 
         console.log('✓ Application initialized successfully\n');
     } catch (error) {
@@ -92,7 +93,7 @@ app.use(cors({
     origin: config.cors.origin,
     credentials: config.cors.credentials,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token']
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token', 'x-security-pin']
 }));
 
 // Body parsing
