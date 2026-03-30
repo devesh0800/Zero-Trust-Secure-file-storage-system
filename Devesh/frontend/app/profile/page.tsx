@@ -475,7 +475,7 @@ function ProfileContent() {
                                     <div className="space-y-6">
                                         <div className="space-y-2">
                                             <div className="flex justify-between items-center text-[10px]">
-                                                <span className="font-bold text-zinc-500 uppercase tracking-widest">Vault Instance ID</span>
+                                                <span className="font-bold text-zinc-500 uppercase tracking-widest">Account ID</span>
                                                 <button onClick={() => copyToClipboard(user?.id || '')} className="text-blue-500 hover:text-blue-400 font-bold transition-colors">COPY ID</button>
                                             </div>
                                             <div className="font-mono bg-zinc-950/80 border border-zinc-800 px-4 py-3 rounded-xl text-[10px] text-zinc-400 break-all leading-relaxed shadow-inner">
@@ -625,7 +625,7 @@ function ProfileContent() {
                             <div className="space-y-6">
                                 <h2 className="text-xs font-black text-zinc-500 uppercase tracking-[0.3em] flex items-center gap-2">
                                     <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-                                    Access Vector History
+                                    Login History
                                 </h2>
                                 <div className="space-y-3">
                                     {activityData?.loginHistory?.map((log: any, idx: number) => (
@@ -642,7 +642,7 @@ function ProfileContent() {
                                                 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
                                                 : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
                                             }`}>
-                                                {log.status === 'success' ? 'Authorized' : 'Denied'}
+                                                {log.status === 'success' ? 'Success' : 'Failed'}
                                             </span>
                                         </div>
                                     ))}
@@ -651,7 +651,7 @@ function ProfileContent() {
                             <div className="space-y-6">
                                 <h2 className="text-xs font-black text-zinc-500 uppercase tracking-[0.3em] flex items-center gap-2">
                                     <div className="h-1.5 w-1.5 rounded-full bg-orange-500" />
-                                    Cryptographic Operations
+                                    File Activity
                                 </h2>
                                 <div className="space-y-3">
                                     {activityData?.fileActivity?.map((log: any, idx: number) => (
@@ -689,15 +689,15 @@ function ProfileContent() {
                                     <div className="space-y-6">
                                         <div className="flex justify-between items-center bg-zinc-900/40 p-5 rounded-2xl border border-zinc-800/50">
                                             <div className="space-y-1">
-                                                <p className="text-xs font-bold text-zinc-100 uppercase tracking-widest">TOTP Authenticator</p>
-                                                <p className="text-[10px] text-zinc-500 font-medium">RFC 6238 Standard Compliance</p>
+                                                <p className="text-xs font-bold text-zinc-100 uppercase tracking-widest">Authenticator App</p>
+                                                <p className="text-[10px] text-zinc-500 font-medium">Add extra security to your account</p>
                                             </div>
                                             <button onClick={() => setIsMfaModalOpen(true)} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                                                 user?.mfa_enabled 
                                                 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20' 
                                                 : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/20'
                                             }`}>
-                                                {user?.mfa_enabled ? 'Reconfigure' : 'Initialize'}
+                                                {user?.mfa_enabled ? 'Reconfigure' : 'Setup Now'}
                                             </button>
                                         </div>
                                     </div>
@@ -706,16 +706,16 @@ function ProfileContent() {
                                 <div className="rounded-3xl border border-zinc-800 bg-[#0c0c0e] p-8 shadow-xl">
                                     <h3 className="text-sm font-black text-white border-b border-zinc-800/50 pb-4 mb-6 uppercase tracking-widest flex items-center gap-2">
                                         <svg className="h-4 w-4 text-violet-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>
-                                        Access Decryption PIN
+                                        Security PIN
                                     </h3>
                                     <div className="space-y-6">
                                         <div className="flex justify-between items-center bg-zinc-900/40 p-5 rounded-2xl border border-zinc-800/50">
                                             <div className="space-y-1">
-                                                <p className="text-xs font-bold text-zinc-100 uppercase tracking-widest">Primary Security PIN</p>
-                                                <p className="text-[10px] text-zinc-500 font-medium">Secondary Layer Decryption Key</p>
+                                                <p className="text-xs font-bold text-zinc-100 uppercase tracking-widest">File Protection PIN</p>
+                                                <p className="text-[10px] text-zinc-500 font-medium">Required to download or unlock files</p>
                                             </div>
                                             <button onClick={() => setIsPinUpdateModalOpen(true)} className="bg-violet-600 text-white px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-violet-700 transition-all shadow-lg shadow-violet-500/20">
-                                                Manage PIN
+                                                Settings
                                             </button>
                                         </div>
                                         <p className="text-[10px] text-zinc-600 font-medium leading-relaxed px-1">
@@ -740,7 +740,7 @@ function ProfileContent() {
                                             </div>
                                         ))}
                                         {sessions.length > 1 && (
-                                            <button className="w-full mt-4 py-3 border border-zinc-800 rounded-2xl text-[10px] font-black text-rose-500 hover:bg-rose-500/5 transition-all uppercase tracking-[0.2em]">Purge Active Sessions</button>
+                                            <button className="w-full mt-4 py-3 border border-zinc-800 rounded-2xl text-[10px] font-black text-rose-500 hover:bg-rose-500/5 transition-all uppercase tracking-[0.2em]">Logout From All Devices</button>
                                         )}
                                     </div>
                                 </div>
@@ -748,7 +748,7 @@ function ProfileContent() {
                             
                             {/* Password Change Form */}
                             <div className="rounded-3xl border border-zinc-800 bg-[#0c0c0e] p-8 shadow-xl">
-                                <h3 className="text-sm font-black text-white mb-8 border-b border-zinc-800/50 pb-4 uppercase tracking-widest">Update Cipherphrase</h3>
+                                <h3 className="text-sm font-black text-white mb-8 border-b border-zinc-800/50 pb-4 uppercase tracking-widest">Change Password</h3>
                                 <form onSubmit={handleUpdatePassword} className="space-y-6 max-w-xl">
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Current Password</label>
@@ -760,22 +760,22 @@ function ProfileContent() {
                                             <input type="password" placeholder="••••••••••••" value={passwordData.new} onChange={e => setPasswordData({...passwordData, new: e.target.value})} className="w-full rounded-2xl border border-zinc-700 bg-zinc-900/50 px-5 py-4 text-sm text-white outline-none focus:border-blue-500/50 transition-all font-mono" required />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Confirm New</label>
+                                            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Confirm Password</label>
                                             <input type="password" placeholder="••••••••••••" value={passwordData.confirm} onChange={e => setPasswordData({...passwordData, confirm: e.target.value})} className="w-full rounded-2xl border border-zinc-700 bg-zinc-900/50 px-5 py-4 text-sm text-white outline-none focus:border-blue-500/50 transition-all font-mono" required />
                                         </div>
                                     </div>
-                                    <button type="submit" className="bg-white text-black px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-200 transition-all active:scale-95 shadow-lg">Update Secure Key</button>
+                                    <button type="submit" className="bg-white text-black px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-200 transition-all active:scale-95 shadow-lg">Update Password</button>
                                 </form>
                             </div>
 
                             <div className="rounded-3xl border border-rose-500/20 bg-rose-500/5 p-8">
                                 <h3 className="text-xs font-black text-rose-500 mb-6 uppercase tracking-[0.3em] flex items-center gap-2">
                                     <div className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-                                    Account Erasure Protocol
+                                    Delete Account
                                 </h3>
                                 <div className="flex flex-wrap gap-4">
-                                    <button className="border border-zinc-800 text-zinc-400 py-3 px-8 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-900 transition-all">Download Audit Archive</button>
-                                    <button className="bg-rose-600/10 text-rose-500 py-3 px-8 border border-rose-500/20 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all">Initialize Account Deletion</button>
+                                    <button className="border border-zinc-800 text-zinc-400 py-3 px-8 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-900 transition-all">Download Log Archive</button>
+                                    <button className="bg-rose-600/10 text-rose-500 py-3 px-8 border border-rose-500/20 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all">Delete Everything</button>
                                 </div>
                             </div>
                         </div>

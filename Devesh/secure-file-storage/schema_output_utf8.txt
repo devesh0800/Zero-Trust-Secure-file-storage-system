@@ -1,0 +1,197 @@
+Executing (default): PRAGMA index_list(known_devices)
+INDEX LIST: [
+  {
+    "seq": 0,
+    "name": "known_devices_user_id_device_fingerprint",
+    "unique": 1,
+    "origin": "c",
+    "partial": 0
+  },
+  {
+    "seq": 1,
+    "name": "known_devices_device_fingerprint",
+    "unique": 0,
+    "origin": "c",
+    "partial": 0
+  },
+  {
+    "seq": 2,
+    "name": "known_devices_user_id",
+    "unique": 0,
+    "origin": "c",
+    "partial": 0
+  },
+  {
+    "seq": 3,
+    "name": "sqlite_autoindex_known_devices_3",
+    "unique": 1,
+    "origin": "u",
+    "partial": 0
+  },
+  {
+    "seq": 4,
+    "name": "sqlite_autoindex_known_devices_2",
+    "unique": 1,
+    "origin": "u",
+    "partial": 0
+  },
+  {
+    "seq": 5,
+    "name": "sqlite_autoindex_known_devices_1",
+    "unique": 1,
+    "origin": "pk",
+    "partial": 0
+  }
+]
+Executing (default): PRAGMA index_info(known_devices_user_id_device_fingerprint)
+INDEX INFO FOR known_devices_user_id_device_fingerprint: [
+  {
+    "seqno": 0,
+    "cid": 1,
+    "name": "user_id"
+  },
+  {
+    "seqno": 1,
+    "cid": 2,
+    "name": "device_fingerprint"
+  }
+]
+Executing (default): PRAGMA index_info(known_devices_device_fingerprint)
+INDEX INFO FOR known_devices_device_fingerprint: [
+  {
+    "seqno": 0,
+    "cid": 2,
+    "name": "device_fingerprint"
+  }
+]
+Executing (default): PRAGMA index_info(known_devices_user_id)
+INDEX INFO FOR known_devices_user_id: [
+  {
+    "seqno": 0,
+    "cid": 1,
+    "name": "user_id"
+  }
+]
+Executing (default): PRAGMA index_info(sqlite_autoindex_known_devices_3)
+INDEX INFO FOR sqlite_autoindex_known_devices_3: [
+  {
+    "seqno": 0,
+    "cid": 2,
+    "name": "device_fingerprint"
+  }
+]
+Executing (default): PRAGMA index_info(sqlite_autoindex_known_devices_2)
+INDEX INFO FOR sqlite_autoindex_known_devices_2: [
+  {
+    "seqno": 0,
+    "cid": 1,
+    "name": "user_id"
+  }
+]
+Executing (default): PRAGMA index_info(sqlite_autoindex_known_devices_1)
+INDEX INFO FOR sqlite_autoindex_known_devices_1: [
+  {
+    "seqno": 0,
+    "cid": 0,
+    "name": "id"
+  }
+]
+Executing (default): PRAGMA table_info(known_devices)
+TABLE INFO: [
+  {
+    "cid": 0,
+    "name": "id",
+    "type": "UUID",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 1
+  },
+  {
+    "cid": 1,
+    "name": "user_id",
+    "type": "UUID",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  {
+    "cid": 2,
+    "name": "device_fingerprint",
+    "type": "VARCHAR(255)",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  {
+    "cid": 3,
+    "name": "device_name",
+    "type": "VARCHAR(255)",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  {
+    "cid": 4,
+    "name": "ip_address",
+    "type": "VARCHAR(255)",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  {
+    "cid": 5,
+    "name": "user_agent",
+    "type": "TEXT",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  {
+    "cid": 6,
+    "name": "is_trusted",
+    "type": "TINYINT(1)",
+    "notnull": 0,
+    "dflt_value": "1",
+    "pk": 0
+  },
+  {
+    "cid": 7,
+    "name": "last_used",
+    "type": "DATETIME",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  {
+    "cid": 8,
+    "name": "first_seen",
+    "type": "DATETIME",
+    "notnull": 0,
+    "dflt_value": null,
+    "pk": 0
+  },
+  {
+    "cid": 9,
+    "name": "login_count",
+    "type": "INTEGER",
+    "notnull": 0,
+    "dflt_value": "'1'",
+    "pk": 0
+  },
+  {
+    "cid": 10,
+    "name": "created_at",
+    "type": "DATETIME",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  },
+  {
+    "cid": 11,
+    "name": "updated_at",
+    "type": "DATETIME",
+    "notnull": 1,
+    "dflt_value": null,
+    "pk": 0
+  }
+]

@@ -1,5 +1,5 @@
 import express from 'express';
-import { getProfile, updateProfile, updateEmail, updatePhone, changePassword, getStorageStats, getActivityLog, getSecurityInfo } from '../controllers/profileController.js';
+import { getProfile, updateProfile, updateEmail, updatePhone, changePassword, getStorageStats, getActivityLog, getSecurityInfo, requestPinUpdateOtp, updateSecurityPin } from '../controllers/profileController.js';
 import { authenticate } from '../middlewares/auth.js';
 import { apiLimiter } from '../middlewares/rateLimiter.js';
 

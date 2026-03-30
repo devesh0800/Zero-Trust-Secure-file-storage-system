@@ -9,16 +9,24 @@ interface UseIdleTimeoutOptions {
  * Hook to detect user inactivity
  * Monitors common user interaction events and triggers a callback after a timeout
  */
-export function useIdleTimeout({ onIdle, timeoutInMinutes = 10 }: UseIdleTimeoutOptions) {
+export function useIdleTimeout({ onIdle, timeoutInMinutes = 15 }: UseIdleTimeoutOptions) {
     const timeoutId = useRef<NodeJS.Timeout | null>(null);
+    const onIdleRef = useRef(onIdle);
     const timeoutMS = timeoutInMinutes * 60 * 1000;
+
+    // Keep onIdle fresh without triggering effects
+    useEffect(() => {
+        onIdleRef.current = onIdle;
+    }, [onIdle]);
 
     const resetTimer = useCallback(() => {
         if (timeoutId.current) {
             clearTimeout(timeoutId.current);
         }
-        timeoutId.current = setTimeout(onIdle, timeoutMS);
-    }, [onIdle, timeoutMS]);
+        timeoutId.current = setTimeout(() => {
+            onIdleRef.current();
+        }, timeoutMS);
+    }, [timeoutMS]);
 
     useEffect(() => {
         const events = [
@@ -27,7 +35,8 @@ export function useIdleTimeout({ onIdle, timeoutInMinutes = 10 }: UseIdleTimeout
             'keypress',
             'scroll',
             'touchstart',
-            'click'
+            'click',
+            'wheel'
         ];
 
         const handleActivity = () => {
