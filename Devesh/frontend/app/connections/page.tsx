@@ -95,11 +95,11 @@ function ConnectionsContent() {
     return (
         <div className="min-h-screen bg-zinc-50">
             <Navbar />
-            <main className="mx-auto max-w-4xl px-4 py-10">
+            <main className="mx-auto max-w-4xl px-4 pt-36 pb-12">
                 {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-2xl font-black text-zinc-900 uppercase tracking-tight">Trusted Connections</h1>
-                    <p className="text-sm text-zinc-400 mt-1">Only connected users can securely share files.</p>
+                <div className="mb-8 border-b border-zinc-200 pb-8">
+                    <h1 className="text-3xl font-black text-zinc-900 uppercase tracking-tight">Trusted Connections</h1>
+                    <p className="text-sm text-zinc-400 mt-1 font-medium italic">Only verified and connected users can securely share end-to-end encrypted files.</p>
                 </div>
 
                 {/* Feedback */}

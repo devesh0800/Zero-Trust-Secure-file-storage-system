@@ -1,13 +1,16 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { getFiles, type FileItem } from '@/lib/api';
+import * as api from '@/lib/api';
+import type { FileItem } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import Link from 'next/link';
 import AuthGuard from '../components/AuthGuard';
 import Navbar from '../components/Navbar';
 import FileCard from '../components/FileCard';
 import UploadModal from '../components/UploadModal';
+import ShareModal from '../components/ShareModal';
+import AdvancedShareModal from '../components/AdvancedShareModal';
 
 function formatTotalSize(bytes: number): string {
     if (bytes === 0) return '0 B';
@@ -26,10 +29,42 @@ function DashboardContent() {
     const [searchQuery, setSearchQuery] = useState('');
     const { user } = useAuth();
 
+    // Sharing UI State
+    const [selectedFileForShare, setSelectedFileForShare] = useState<FileItem | null>(null);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    const [isAdvShareOpen, setIsAdvShareOpen] = useState(false);
+    const [advShareFile, setAdvShareFile] = useState<{ id: string; name: string } | null>(null);
+
+    const handleShare = (file: FileItem) => {
+        setSelectedFileForShare(file);
+        setIsShareModalOpen(true);
+    };
+
+    const handleAdvShare = (file: FileItem) => {
+        setAdvShareFile({ id: file.id, name: file.original_filename });
+        setIsAdvShareOpen(true);
+    };
+
+    const performShare = async (options: { password?: string, expiresAt?: string }): Promise<string | null> => {
+        if (!selectedFileForShare) return null;
+        try {
+            const data = await api.createShare(selectedFileForShare.id, {
+                accessType: options.password ? 'password_protected' : 'public',
+                password: options.password,
+                expiresAt: options.expiresAt
+            });
+            const shareUrl = `${window.location.origin}/share/${data.share_token}`;
+            return shareUrl;
+        } catch (error: any) {
+            console.error('API share error:', error);
+            throw error;
+        }
+    };
+
     const loadFiles = useCallback(async () => {
         setIsLoading(true);
         try {
-            const data = await getFiles();
+            const data = await api.getFiles();
             setFiles(data.data.files || []);
             setTotalFiles(data.data.pagination?.total || data.data.files?.length || 0);
         } catch {
@@ -48,7 +83,7 @@ function DashboardContent() {
         <div className="min-h-screen bg-[#0a0a0f]">
             <Navbar />
 
-            <main className="mx-auto max-w-7xl px-4 pt-24 pb-12 sm:px-6 lg:px-8">
+            <main className="mx-auto max-w-7xl px-4 pt-36 pb-12 sm:px-6 lg:px-8">
                 {user?.is_restricted && (
                     <div className="mb-8 rounded-2xl border border-rose-500/30 bg-rose-500/10 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
@@ -248,7 +283,9 @@ function DashboardContent() {
                                                             <FileCard
                                                                 file={file}
                                                                 onDeleted={loadFiles}
-                                                                variant="compact" // I'll update FileCard to support a compact variant or just use standard actions
+                                                                onShare={handleShare}
+                                                                onAdvShare={handleAdvShare}
+                                                                variant="compact"
                                                                 isRestricted={user?.is_restricted}
                                                             />
                                                         </div>
@@ -271,6 +308,21 @@ function DashboardContent() {
                     setShowUpload(false);
                     loadFiles();
                 }}
+            />
+
+            <ShareModal
+                isOpen={isShareModalOpen}
+                onClose={() => setIsShareModalOpen(false)}
+                onShare={performShare}
+                fileName={selectedFileForShare?.original_filename || ''}
+                fileId={selectedFileForShare?.id || ''}
+            />
+
+            <AdvancedShareModal
+                isOpen={isAdvShareOpen}
+                onClose={() => setIsAdvShareOpen(false)}
+                fileId={advShareFile?.id || ''}
+                fileName={advShareFile?.name || ''}
             />
         </div>
     );

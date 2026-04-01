@@ -33,6 +33,22 @@ export const sendRequest = asyncHandler(async (req, res) => {
 });
 
 /**
+ * @route   GET /api/v1/connections/search
+ * @desc    Search all platform users (to connect/share)
+ */
+export const searchUsers = asyncHandler(async (req, res) => {
+    const { q } = req.query;
+    if (!q || q.length < 3) {
+        return res.status(200).json({ success: true, data: [] });
+    }
+    const users = await connectionService.searchUsers(q, req.user.id);
+    res.status(200).json({
+        success: true,
+        data: users
+    });
+});
+
+/**
  * @route   PUT /api/v1/connections/:id/accept
  * @desc    Accept a pending connection request
  */

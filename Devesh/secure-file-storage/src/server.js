@@ -4,7 +4,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 
-// Force SQLite locally to bypass stale environment variables
+// Refreshing module cache to resolve Windows casing inconsistency
 process.env.DB_DIALECT = 'sqlite';
 process.env.DB_STORAGE = './database.sqlite';
 

@@ -8,9 +8,10 @@ interface DownloadPinModalProps {
     onConfirm: (pin: string) => void;
     fileName: string;
     isDownloading: boolean;
+    error?: string | null;
 }
 
-export default function DownloadPinModal({ isOpen, onClose, onConfirm, fileName, isDownloading }: DownloadPinModalProps) {
+export default function DownloadPinModal({ isOpen, onClose, onConfirm, fileName, isDownloading, error }: DownloadPinModalProps) {
     const [pin, setPin] = useState('');
 
     if (!isOpen) return null;
@@ -45,9 +46,14 @@ export default function DownloadPinModal({ isOpen, onClose, onConfirm, fileName,
                             value={pin}
                             onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
                             placeholder="••••••"
-                            className="w-full rounded-2xl border border-zinc-800 bg-zinc-950 px-6 py-5 text-center text-2xl font-black tracking-[0.5em] text-white placeholder:text-zinc-800 outline-none focus:border-blue-500/50 transition-all shadow-inner"
+                            className={`w-full rounded-2xl border bg-zinc-950 px-6 py-5 text-center text-2xl font-black tracking-[0.5em] text-white placeholder:text-zinc-800 outline-none transition-all shadow-inner ${error ? 'border-red-500/50 focus:border-red-500' : 'border-zinc-800 focus:border-blue-500/50'}`}
                             required
                         />
+                        {error && (
+                            <p className="text-[10px] font-bold text-red-500 uppercase tracking-wider text-center animate-pulse">
+                                {error}
+                            </p>
+                        )}
                     </div>
 
                     <div className="flex flex-col gap-3">

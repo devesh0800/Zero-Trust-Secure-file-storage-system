@@ -10,7 +10,7 @@ export default function HelpPage() {
             <div className="min-h-screen bg-[#0a0a0f]">
                 <Navbar />
 
-                <main className="mx-auto max-w-4xl px-4 pt-24 pb-12 sm:px-6 lg:px-8">
+                <main className="mx-auto max-w-4xl px-4 pt-36 pb-12 sm:px-6 lg:px-8">
                     {/* Header */}
                     <div className="text-center">
                         <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">

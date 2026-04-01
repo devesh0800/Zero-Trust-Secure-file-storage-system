@@ -168,6 +168,11 @@ function ProfileContent() {
         setIsShareModalOpen(true);
     };
 
+    const handleAdvShare = (file: any) => {
+        setAdvShareFile({ id: file.id, name: file.name });
+        setIsAdvShareOpen(true);
+    };
+
     const performShare = async (options: { password?: string, expiresAt?: string }): Promise<string | null> => {
         if (!selectedFileForShare) return null;
         
@@ -258,7 +263,7 @@ function ProfileContent() {
         <div className="min-h-screen bg-[#030303] text-zinc-100 font-sans selection:bg-blue-500/30">
             <Navbar />
             
-            <main className="mx-auto max-w-5xl px-4 pt-24 pb-12">
+            <main className="mx-auto max-w-5xl px-4 pt-36 pb-12">
                 {/* Premium Header Card */}
                 <div className="mb-8 overflow-hidden rounded-3xl border border-zinc-800 bg-[#0c0c0e] shadow-2xl transition-all hover:shadow-blue-500/5">
                     <div className="bg-gradient-to-br from-blue-600/10 via-transparent to-indigo-600/5 p-8">
@@ -604,7 +609,7 @@ function ProfileContent() {
                                                             <td className="px-8 py-5 text-right">
                                                                 <div className="flex justify-end gap-5 text-[9px] font-black uppercase tracking-widest">
                                                                     <button onClick={() => handleShare(f)} className="text-zinc-500 hover:text-blue-500 transition-colors">Share Link</button>
-                                                                    <button className="text-zinc-500 hover:text-green-500 transition-colors">Direct Share</button>
+                                                                    <button onClick={() => handleAdvShare(f)} className="text-zinc-500 hover:text-green-500 transition-colors">Direct Share</button>
                                                                     <button onClick={() => initiateDownload(f)} className="bg-blue-600/10 text-blue-500 px-4 py-1.5 rounded-lg hover:bg-blue-600 hover:text-white transition-all">Download</button>
                                                                 </div>
                                                             </td>
@@ -756,7 +761,7 @@ function ProfileContent() {
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">New Password</label>
+                                            <label className="text-[10px) font-black text-zinc-500 uppercase tracking-widest">New Password</label>
                                             <input type="password" placeholder="••••••••••••" value={passwordData.new} onChange={e => setPasswordData({...passwordData, new: e.target.value})} className="w-full rounded-2xl border border-zinc-700 bg-zinc-900/50 px-5 py-4 text-sm text-white outline-none focus:border-blue-500/50 transition-all font-mono" required />
                                         </div>
                                         <div className="space-y-2">
@@ -793,6 +798,13 @@ function ProfileContent() {
                 onShare={performShare}
             />
 
+            <AdvancedShareModal 
+                isOpen={isAdvShareOpen} 
+                onClose={() => setIsAdvShareOpen(false)}
+                fileId={advShareFile?.id || ''}
+                fileName={advShareFile?.name || ''}
+            />
+
             <DownloadPinModal 
                 isOpen={isPinModalOpen} 
                 onClose={() => setIsPinModalOpen(false)}
@@ -802,32 +814,19 @@ function ProfileContent() {
             />
 
             <PinUpdateModal 
-                isOpen={isPinUpdateModalOpen}
+                isOpen={isPinUpdateModalOpen} 
                 onClose={() => setIsPinUpdateModalOpen(false)}
-                mfaEnabled={!!user?.mfa_enabled}
-                onSuccess={() => showMessage('success', 'Security PIN updated successfully. Access system re-locked.')}
+                mfaEnabled={user?.mfa_enabled ?? false}
+                onSuccess={() => showMessage('success', 'Security PIN updated successfully!')}
             />
-
-            {advShareFile && (
-                <AdvancedShareModal
-                    isOpen={isAdvShareOpen}
-                    onClose={() => { setIsAdvShareOpen(false); setAdvShareFile(null); }}
-                    fileId={advShareFile.id}
-                    fileName={advShareFile.name}
-                />
-            )}
         </div>
     );
 }
 
-import { Suspense } from 'react';
-
 export default function ProfilePage() {
     return (
         <AuthGuard>
-            <Suspense fallback={<div className="min-h-screen bg-zinc-50 flex items-center justify-center">Loading Profile...</div>}>
-                <ProfileContent />
-            </Suspense>
+            <ProfileContent />
         </AuthGuard>
     );
 }

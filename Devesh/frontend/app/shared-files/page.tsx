@@ -22,10 +22,25 @@ function SharedFilesContent() {
     const fetchData = async () => {
         setIsLoading(true);
         try {
-            const [sent, received] = await Promise.all([api.getSentShares(), api.getReceivedShares()]);
-            setSentShares(sent);
-            setReceivedShares(received);
-        } catch { /* empty */ }
+            // Decouple fetching so if one fails, the other can still load.
+            const results = await Promise.allSettled([api.getSentShares(), api.getReceivedShares()]);
+            
+            if (results[0].status === 'fulfilled') {
+                setSentShares(results[0].value);
+            } else {
+                console.error('Error fetching sent shares:', results[0].reason);
+            }
+
+            if (results[1].status === 'fulfilled') {
+                console.log('Received shares:', results[1].value);
+                setReceivedShares(results[1].value);
+            } else {
+                console.error('Error fetching received shares:', results[1].reason);
+                showMsg('error', 'Failed to load received files. Check console.');
+            }
+        } catch (e: any) {
+            console.error('FetchData error:', e);
+        }
         setIsLoading(false);
     };
 
@@ -80,10 +95,18 @@ function SharedFilesContent() {
     return (
         <div className="min-h-screen bg-zinc-50">
             <Navbar />
-            <main className="mx-auto max-w-5xl px-4 py-10">
-                <div className="mb-8">
-                    <h1 className="text-2xl font-black text-zinc-900 uppercase tracking-tight">Shared Files</h1>
-                    <p className="text-sm text-zinc-400 mt-1">Manage your secure P2PE file shares.</p>
+            <main className="mx-auto max-w-5xl px-4 pt-36 pb-12">
+                <div className="mb-8 border-b border-zinc-200 pb-8 flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-black text-zinc-900 uppercase tracking-tight">Shared Files</h1>
+                        <p className="text-sm text-zinc-400 mt-1 font-medium italic">Manage your secure end-to-end encrypted file transfers.</p>
+                    </div>
+                    {isLoading && (
+                        <div className="flex items-center gap-2">
+                            <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+                            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Encrypting View...</span>
+                        </div>
+                    )}
                 </div>
 
                 {message.text && (
@@ -116,10 +139,10 @@ function SharedFilesContent() {
                                         <div key={share.id} className="rounded-2xl border border-zinc-200 bg-white p-5 flex items-center justify-between hover:shadow-md transition-all">
                                             <div className="flex items-center gap-4 flex-1 min-w-0">
                                                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-black text-xs uppercase shadow-lg shadow-indigo-500/20 shrink-0">
-                                                    {share.file?.file_type?.toUpperCase()?.slice(0, 3) || 'F'}
+                                                    {share.file?.file_extension?.toUpperCase()?.slice(0, 3) || 'F'}
                                                 </div>
                                                 <div className="min-w-0 flex-1">
-                                                    <p className="text-sm font-bold text-zinc-900 truncate">{share.file?.original_name || 'Encrypted File'}</p>
+                                                    <p className="text-sm font-bold text-zinc-900 truncate">{share.file?.original_filename || 'Encrypted File'}</p>
                                                     <div className="flex items-center gap-2 mt-1 flex-wrap">
                                                         <span className="text-[10px] text-zinc-400">from <b className="text-zinc-600">@{share.sharer?.username}</b></span>
                                                         <span className="text-[10px] text-zinc-300">•</span>
@@ -160,10 +183,10 @@ function SharedFilesContent() {
                                             <div className="flex items-center justify-between mb-3">
                                                 <div className="flex items-center gap-3 flex-1 min-w-0">
                                                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 text-white font-black text-xs uppercase shadow-lg shadow-blue-500/20 shrink-0">
-                                                        {share.file?.file_type?.toUpperCase()?.slice(0, 3) || 'F'}
+                                                        {share.file?.file_extension?.toUpperCase()?.slice(0, 3) || 'F'}
                                                     </div>
                                                     <div className="min-w-0">
-                                                        <p className="text-sm font-bold text-zinc-900 truncate">{share.file?.original_name}</p>
+                                                        <p className="text-sm font-bold text-zinc-900 truncate">{share.file?.original_filename}</p>
                                                         <p className="text-[10px] text-zinc-400">to <b className="text-zinc-600">@{share.receiver?.username}</b> • {formatSize(share.file?.file_size)}</p>
                                                     </div>
                                                 </div>

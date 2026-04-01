@@ -2,6 +2,7 @@ import { User, Connection } from '../models/index.js';
 import { AppError } from '../middlewares/errorHandler.js';
 import crypto from 'crypto';
 import { Op } from 'sequelize';
+import sequelize from '../config/database.js';
 
 /**
  * Connection Service
@@ -17,6 +18,36 @@ function generateSafetyNumber(publicKeyA, publicKeyB) {
     // Take first 16 hex chars and format as XXXX-XXXX-XXXX-XXXX
     const digits = hash.substring(0, 16).toUpperCase();
     return `${digits.slice(0,4)}-${digits.slice(4,8)}-${digits.slice(8,12)}-${digits.slice(12,16)}`;
+}
+
+/**
+ * Search all users on the platform (by email, username, or unique_share_id).
+ */
+export async function searchUsers(query, currentUserId) {
+    const users = await User.findAll({
+        where: {
+            id: { [Op.ne]: currentUserId },
+            [Op.or]: [
+                { username: { [Op.like]: `%${query}%` } },
+                { email: { [Op.like]: `%${query}%` } },
+                { unique_share_id: query }
+            ]
+        },
+        attributes: [
+            'id', 'username', 'email', 'full_name', 'unique_share_id', 'profile_pic', 'public_key',
+            [
+                User.sequelize.literal(`(
+                    SELECT status FROM connections 
+                    WHERE (sender_id = '${currentUserId}' AND receiver_id = users.id) 
+                       OR (sender_id = users.id AND receiver_id = '${currentUserId}')
+                    LIMIT 1
+                )`),
+                'connection_status'
+            ]
+        ],
+        limit: 10
+    });
+    return users;
 }
 
 /**
@@ -188,6 +219,7 @@ export async function verifyConnection(connectionId, userId) {
 }
 
 export default {
+    searchUsers,
     sendRequest,
     acceptRequest,
     rejectRequest,

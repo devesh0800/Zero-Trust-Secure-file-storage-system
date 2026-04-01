@@ -94,7 +94,12 @@ export async function revokeShare(shareId, userId) {
  * Track file view (called when receiver opens the file).
  */
 export async function trackView(shareId, userId) {
-    const share = await SharedFile.findByPk(shareId);
+    const share = await SharedFile.findByPk(shareId, {
+        include: [
+            { model: File, as: 'file', attributes: ['id', 'original_filename', 'file_extension', 'file_size', 'mime_type'] },
+            { model: User, as: 'sharer', attributes: ['id', 'username', 'full_name'] }
+        ]
+    });
     if (!share) throw new AppError('Share not found.', 404);
     if (share.receiver_id !== userId) throw new AppError('Unauthorized.', 403);
     if (share.status !== 'accepted') throw new AppError('Share is not active.', 403);
@@ -107,12 +112,18 @@ export async function trackView(shareId, userId) {
         throw new AppError('This share has expired.', 410);
     }
 
-    // View Once: auto-revoke after first view
-    if (share.permission_mode === 'view_once' && share.view_count >= 1) {
-        share.status = 'revoked';
-        share.is_active = false;
-        await share.save();
-        throw new AppError('This was a view-once share. Access revoked.', 410);
+    // View Once: auto-revoke after initial viewing session
+    if (share.permission_mode === 'view_once' && share.is_viewed) {
+        const firstViewAt = new Date(share.last_access_at).getTime();
+        const now = new Date().getTime();
+        // Allow a 30-second window for the initial load/refreshes
+        // After 30s, any new request to trackView will revoke it permanently
+        if (now - firstViewAt > 30000) {
+            share.status = 'revoked';
+            share.is_active = false;
+            await share.save();
+            throw new AppError('This was a view-once share. Access has been revoked.', 410);
+        }
     }
 
     share.is_viewed = true;
@@ -151,7 +162,7 @@ export async function getSentShares(userId) {
     const shares = await SharedFile.findAll({
         where: { shared_by: userId, access_type: 'p2pe' },
         include: [
-            { model: File, as: 'file', attributes: ['id', 'original_name', 'file_type', 'file_size'] },
+            { model: File, as: 'file', attributes: ['id', 'original_filename', 'file_extension', 'file_size'] },
             { model: User, as: 'receiver', attributes: ['id', 'username', 'full_name', 'unique_share_id'] }
         ],
         order: [['created_at', 'DESC']]
@@ -166,12 +177,29 @@ export async function getReceivedShares(userId) {
     const shares = await SharedFile.findAll({
         where: { receiver_id: userId, access_type: 'p2pe' },
         include: [
-            { model: File, as: 'file', attributes: ['id', 'original_name', 'file_type', 'file_size'] },
+            { model: File, as: 'file', attributes: ['id', 'original_filename', 'file_extension', 'file_size'] },
             { model: User, as: 'sharer', attributes: ['id', 'username', 'full_name', 'unique_share_id'] }
         ],
         order: [['created_at', 'DESC']]
     });
     return shares;
+}
+
+/**
+ * Revoke ALL shares for a specific file (Master Kill Switch).
+ * Sets is_active = false and status = 'revoked' for every share associated with this file.
+ */
+export async function revokeAllFileShares(fileId, userId) {
+    // Verify file ownership
+    const file = await File.findOne({ where: { id: fileId, user_id: userId } });
+    if (!file) throw new AppError('File not found or you do not own it.', 404);
+
+    const result = await SharedFile.update(
+        { is_active: false, status: 'revoked' },
+        { where: { file_id: fileId, shared_by: userId } }
+    );
+
+    return { message: 'All file shares have been revoked successfully.', affectedCount: result[0] };
 }
 
 export default {
@@ -182,5 +210,6 @@ export default {
     trackView,
     trackDownload,
     getSentShares,
-    getReceivedShares
+    getReceivedShares,
+    revokeAllFileShares
 };

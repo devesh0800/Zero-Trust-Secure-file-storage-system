@@ -2,6 +2,7 @@ import fileService from '../services/fileService.js';
 import { asyncHandler } from '../middlewares/errorHandler.js';
 import { generateSignedUrl, verifySignedUrl } from '../utils/signedUrl.js';
 import { logSecurityEvent } from '../utils/logger.js';
+import { revokeAllFileShares as revokeShares } from '../services/advancedShareService.js';
 
 /**
  * File Controller
@@ -87,24 +88,34 @@ export const downloadFile = asyncHandler(async (req, res) => {
         // Security PIN verification
         const securityPin = req.headers['x-security-pin'] || req.query.pin;
         const hasHash = !!req.user.security_pin_hash;
+        
         console.log(`[DEBUG] PIN Strict Check - User: ${req.user.email}, HasHash: ${hasHash}, PinProvided: ${!!securityPin}`);
         
-        // If a hash exists, verify against it. 
-        // If NO hash exists (old user), for security we will skip until they set one,
-        // UNLESS we want to force them. 
-        if (hasHash) {
-            if (!securityPin) {
-                return res.status(403).json({ success: false, message: 'Security PIN required' });
-            }
-            const isPinValid = await req.user.verifySecurityPin(securityPin);
-            if (!isPinValid) {
-                return res.status(403).json({ success: false, message: 'Invalid PIN' });
-            }
-        } else {
-            // If user has NO pin but they're trying to use one, we should probably warn or block?
-            // Actually, if they haven't set one yet, we let them through to avoid lockouts,
-            // but we'll ask them to check registration.
-            console.log('[DEBUG] No PIN set for user, bypassing security check.');
+        // Strictly enforce PIN for all downloads in Zero-Trust model
+        if (!hasHash) {
+            return res.status(403).json({ 
+                success: false, 
+                message: 'Security PIN NOT set. For your security, please create a 6-digit Security PIN in your profile settings before downloading files.',
+                needsPin: true
+            });
+        }
+
+        if (!securityPin) {
+            return res.status(403).json({ 
+                success: false, 
+                message: 'Security PIN required for download',
+                requiresPin: true
+            });
+        }
+
+        const isPinValid = await req.user.verifySecurityPin(securityPin);
+        if (!isPinValid) {
+            logSecurityEvent('invalid_pin_download', {
+                fileId: id,
+                userId: req.user.id,
+                ip: req.ip
+            });
+            return res.status(403).json({ success: false, message: 'Invalid Security PIN' });
         }
         
         userId = req.user.id;
@@ -218,11 +229,36 @@ export const deleteFile = asyncHandler(async (req, res) => {
     });
 });
 
+/**
+ * @route   PUT /api/v1/files/:id/revoke-all
+ * @desc    Revoke all shares for a file (public links + private shares)
+ * @access  Private
+ */
+export const revokeAllShares = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    
+    const result = await revokeShares(id, req.user.id);
+    
+    logSecurityEvent('all_shares_revoked', {
+        fileId: id,
+        userId: req.user.id,
+        affectedCount: result.affectedCount,
+        ip: req.ip
+    });
+
+    res.status(200).json({
+        success: true,
+        message: 'All access points for this file have been terminated.',
+        data: result
+    });
+});
+
 export default {
     uploadFile,
     downloadFile,
     getFiles,
     getFileMetadata,
     deleteFile,
-    getSignedDownloadUrl
+    getSignedDownloadUrl,
+    revokeAllShares
 };

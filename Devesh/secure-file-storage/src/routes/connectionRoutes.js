@@ -8,6 +8,7 @@ const router = Router();
 router.use(authenticate);
 
 router.post('/request', connectionController.sendRequest);
+router.get('/search', connectionController.searchUsers);
 router.get('/', connectionController.getConnections);
 router.put('/:id/accept', connectionController.acceptRequest);
 router.put('/:id/reject', connectionController.rejectRequest);

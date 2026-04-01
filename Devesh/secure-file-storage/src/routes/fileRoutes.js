@@ -76,4 +76,14 @@ router.delete(
     fileController.deleteFile
 );
 
+// Revoke all shares for a file
+router.put(
+    '/:id/revoke-all',
+    authenticate,
+    requireFullAccess,
+    uuidValidation('id'),
+    validate,
+    fileController.revokeAllShares
+);
+
 export default router;

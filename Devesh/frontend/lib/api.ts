@@ -359,6 +359,7 @@ export async function downloadFile(fileId: string, filename: string, pin?: strin
     a.click();
     window.URL.revokeObjectURL(url);
     a.remove();
+    return blob;
 }
 
 export async function deleteFile(fileId: string) {
@@ -581,6 +582,12 @@ export async function verifyConnection(connectionId: string) {
     return data.data;
 }
 
+export async function searchUsers(q: string) {
+    const res = await request(`/connections/search?q=${encodeURIComponent(q)}`);
+    const data = await res.json();
+    return data.data;
+}
+
 // ==================== ADVANCED P2PE SHARES ====================
 
 export async function createAdvancedShare(payload: {
@@ -648,4 +655,9 @@ export async function updateSecurityPin(data: { new_pin: string, otp_code?: stri
         method: 'POST',
         body: JSON.stringify(data)
     });
+}
+
+export async function revokeAllShares(fileId: string) {
+    const res = await request(`/files/${fileId}/revoke-all`, { method: 'PUT' });
+    return res.json();
 }
