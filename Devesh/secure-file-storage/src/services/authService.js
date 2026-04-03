@@ -6,6 +6,7 @@ import { logAuthEvent, logSecurityEvent } from '../utils/logger.js';
 import { checkAndRegisterDevice, parseDeviceName } from '../utils/deviceFingerprint.js';
 import otpService from './otpService.js';
 import notificationService from './notificationService.js';
+import emailService from './emailService.js';
 import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
 
@@ -596,12 +597,32 @@ export async function requestUnlockMagicLink(email, ipAddress) {
 
     logSecurityEvent('magic_link_requested', { userId: user.id, ip: ipAddress });
 
-    // In a real app, send email here. E.g. sendEmail(user.email, `/unlock?token=${tokenBytes}`);
-    // Returning the plain token bytes ONLY FOR TESTING since we don't have an email provider configured
+    // Send ACTUAL email using email service
+    const unlockUrl = `${process.env.CORS_ORIGIN || 'http://localhost:3000'}/unlock/verify?token=${tokenBytes}`;
+    
+    try {
+        await emailService.sendMail({
+            to: user.email,
+            subject: 'Account Recovery - Magic Link Node',
+            text: `Authorized access only. Use this link to unlock your account: ${unlockUrl}`,
+            html: `
+                <div style="font-family: sans-serif; padding: 20px; color: #333;">
+                    <h2 style="color: #7c3aed;">Account Recovery Requested</h2>
+                    <p>System has detected a request to unlock your SecureVault node.</p>
+                    <p>Click the button below to verify your identity and restore access:</p>
+                    <a href="${unlockUrl}" style="display: inline-block; padding: 12px 24px; background-color: #7c3aed; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">Unlock My Account</a>
+                    <p style="margin-top: 20px; font-size: 12px; color: #666;">This link is valid for 15 minutes. If you did not request this, please ignore this email.</p>
+                </div>
+            `
+        });
+    } catch (mailError) {
+        console.error('Failed to send unlock email:', mailError);
+        // We still return success to the UI but log the error internally
+    }
+
     return { 
         success: true, 
-        message: 'Magic link generated successfully',
-        test_magic_link: `/api/v1/auth/unlock/verify?token=${tokenBytes}`
+        message: 'Recovery email sent. Please check your inbox.' 
     };
 }
 

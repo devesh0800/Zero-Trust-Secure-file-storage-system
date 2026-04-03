@@ -93,7 +93,7 @@ function SecurePreviewContent({ params }: { params: Promise<{ id: string }> }) {
         return (
             <div className="min-h-screen bg-zinc-50">
                 <Navbar />
-                <main className="mx-auto max-w-4xl px-4 pt-36 pb-12 flex flex-col items-center justify-center">
+                <main className="mx-auto max-w-4xl px-4 pt-32 pb-12 flex flex-col items-center justify-center">
                     <div className="h-12 w-12 animate-spin rounded-full border-4 border-zinc-200 border-t-zinc-900"></div>
                     <p className="mt-6 text-[10px] font-black text-zinc-400 uppercase tracking-widest animate-pulse">Decrypting Security Layers...</p>
                 </main>
@@ -105,7 +105,7 @@ function SecurePreviewContent({ params }: { params: Promise<{ id: string }> }) {
         return (
             <div className="min-h-screen bg-zinc-50">
                 <Navbar />
-                <main className="mx-auto max-w-4xl px-4 pt-36 pb-12 text-center">
+                <main className="mx-auto max-w-4xl px-4 pt-32 pb-12 text-center">
                     <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-red-50 text-red-500 shadow-inner">
                         <svg className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                     </div>
@@ -120,7 +120,7 @@ function SecurePreviewContent({ params }: { params: Promise<{ id: string }> }) {
     return (
         <div className="min-h-screen bg-zinc-50">
             <Navbar />
-            <main className="mx-auto max-w-4xl px-4 pt-36 pb-12">
+            <main className="mx-auto max-w-4xl px-4 pt-32 pb-12">
                 <PrivacyShield enabled={share.permission_mode === 'view_once'}>
                     {/* Header Card */}
                     <div className="mb-6 rounded-[2rem] border border-zinc-200 bg-white p-8 flex flex-col md:flex-row items-center justify-between shadow-sm">

@@ -47,8 +47,35 @@ export const markAllAsRead = asyncHandler(async (req, res) => {
     });
 });
 
+/**
+ * Delete a specific notification
+ */
+export const deleteNotification = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    await notificationService.deleteNotification(req.user.id, id);
+
+    res.status(200).json({
+        success: true,
+        message: 'Notification deleted successfully'
+    });
+});
+
+/**
+ * Delete all notifications for the user
+ */
+export const clearAll = asyncHandler(async (req, res) => {
+    await notificationService.deleteAllNotifications(req.user.id);
+
+    res.status(200).json({
+        success: true,
+        message: 'All notifications cleared'
+    });
+});
+
 export default {
     getNotifications,
     markAsRead,
-    markAllAsRead
+    markAllAsRead,
+    deleteNotification,
+    clearAll
 };

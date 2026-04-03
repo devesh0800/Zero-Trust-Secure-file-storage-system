@@ -270,7 +270,7 @@ export async function getAiChallenge() {
     return data.data;
 }
 
-export async function verifyAiChallenge(answers: number[]) {
+export async function verifyAiChallenge(answers: (number | string)[]) {
     const res = await request('/auth/unlock/challenge/verify', {
         method: 'POST',
         body: JSON.stringify({ answers }),
@@ -468,7 +468,37 @@ export async function getSecurityInfo() {
     return data.data;
 }
 
+export async function downloadLogArchive(pin: string) {
+    const res = await request('/profile/log-archive', {
+        method: 'POST',
+        headers: { 'x-security-pin': pin }
+    });
+    const data = await res.json();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `audit_log_${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+export async function deleteEverything() {
+    const res = await request('/profile/delete-everything', { method: 'DELETE' });
+    const data = await res.json();
+    return data;
+}
+
+export async function deleteAccount() {
+    const res = await request('/profile/delete-account', { method: 'DELETE' });
+    const data = await res.json();
+    return data;
+}
+
 // ============ NOTIFICATION ENDPOINTS ============
+
 
 export async function getNotifications(page = 1, limit = 50) {
     const offset = (page - 1) * limit;
@@ -484,6 +514,16 @@ export async function markNotificationAsRead(id: string) {
 
 export async function markAllNotificationsAsRead() {
     const res = await request('/notifications/read-all', { method: 'PUT' });
+    return res.json();
+}
+
+export async function deleteNotification(id: string) {
+    const res = await request(`/notifications/${id}`, { method: 'DELETE' });
+    return res.json();
+}
+
+export async function deleteAllNotifications() {
+    const res = await request('/notifications/clear-all', { method: 'DELETE' });
     return res.json();
 }
 

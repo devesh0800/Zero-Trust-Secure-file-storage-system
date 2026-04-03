@@ -104,25 +104,41 @@ export const updatePhone = asyncHandler(async (req, res) => {
  */
 export const changePassword = asyncHandler(async (req, res) => {
     const { current_password, new_password } = req.body;
+    
+    // Explicitly fetch user with password_hash included
     const user = await User.findByPk(req.user.id);
 
     if (!current_password || !new_password) {
         throw new AppError('Current and new password are required', 400);
     }
 
+    // Password length validation
+    if (new_password.length < 12) {
+        throw new AppError('Password must be at least 12 characters long for maximum security', 400);
+    }
+
     // Verify current password
     const isMatch = await user.verifyPassword(current_password);
     if (!isMatch) {
+        logSecurityEvent('password_change_failed_invalid_current', { userId: user.id });
         throw new AppError('Incorrect current password', 401);
     }
 
+    // Check if new password is same as old
+    if (current_password === new_password) {
+        throw new AppError('New password cannot be the same as the current password', 400);
+    }
+
     // Update password
+    // The beforeUpdate hook in User.js will handle the hashing
     user.password_hash = new_password;
     await user.save();
 
+    logSecurityEvent('password_changed_success', { userId: user.id });
+
     res.status(200).json({
         success: true,
-        message: 'Password updated successfully'
+        message: 'Password updated successfully. Please use your new password for future logins.'
     });
 });
 
@@ -290,6 +306,117 @@ export const updateSecurityPin = asyncHandler(async (req, res) => {
     });
 });
 
+/**
+ * Download audit log archive as JSON (requires Security PIN)
+ */
+export const downloadLogArchive = asyncHandler(async (req, res) => {
+    const securityPin = req.headers['x-security-pin'] || req.body?.pin;
+    const user = await User.findByPk(req.user.id);
+
+    if (!user.security_pin_hash) {
+        throw new AppError('Security PIN not set. Please create a PIN in your profile settings first.', 403);
+    }
+
+    if (!securityPin) {
+        throw new AppError('Security PIN required to download log archive.', 403);
+    }
+
+    const isPinValid = await user.verifySecurityPin(securityPin);
+    if (!isPinValid) {
+        logSecurityEvent('invalid_pin_log_download', { userId: user.id, ip: req.ip });
+        throw new AppError('Invalid Security PIN.', 403);
+    }
+
+    const logs = await AuditLog.findAll({
+        where: { user_id: req.user.id },
+        order: [['created_at', 'DESC']],
+        raw: true
+    });
+
+    const archive = {
+        exported_at: new Date().toISOString(),
+        user_id: req.user.id,
+        total_entries: logs.length,
+        logs: logs
+    };
+
+    logSecurityEvent('log_archive_downloaded', { userId: user.id, ip: req.ip });
+
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="audit_log_${req.user.id}_${Date.now()}.json"`);
+    res.status(200).json(archive);
+});
+
+/**
+ * Delete everything (all files, sessions, logs) but keep account
+ */
+export const deleteEverything = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const { Op } = await import('sequelize');
+
+    // Delete all user files
+    await File.destroy({ where: { user_id: userId } });
+
+    // Delete shared files  
+    const { SharedFile, RefreshToken, Notification, ActionToken, KnownDevice } = await import('../models/index.js');
+    await SharedFile.destroy({ where: { [Op.or]: [{ owner_id: userId }, { shared_with_id: userId }] } });
+
+    // Delete all sessions
+    await RefreshToken.destroy({ where: { user_id: userId } });
+
+    // Delete notifications
+    await Notification.destroy({ where: { user_id: userId } });
+
+    // Delete action tokens
+    await ActionToken.destroy({ where: { user_id: userId } });
+
+    // Delete known devices
+    await KnownDevice.destroy({ where: { user_id: userId } });
+
+    // Delete audit logs (bypass hooks since AuditLog is append-only)
+    await AuditLog.destroy({ where: { user_id: userId }, hooks: false, individualHooks: false });
+
+    logSecurityEvent('delete_everything', { userId });
+
+    res.status(200).json({
+        success: true,
+        message: 'All data has been permanently deleted. Your account remains active.'
+    });
+});
+
+/**
+ * Permanently delete user account and all associated data
+ */
+export const deleteAccount = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const user = await User.findByPk(userId);
+    const { Op } = await import('sequelize');
+
+    if (!user) throw new AppError('User not found', 404);
+
+    // Delete all related data
+    const { SharedFile, RefreshToken, Notification, ActionToken, KnownDevice, Connection, OtpVerification } = await import('../models/index.js');
+    
+    await File.destroy({ where: { user_id: userId } });
+    await SharedFile.destroy({ where: { [Op.or]: [{ owner_id: userId }, { shared_with_id: userId }] } });
+    await RefreshToken.destroy({ where: { user_id: userId } });
+    await Notification.destroy({ where: { user_id: userId } });
+    await ActionToken.destroy({ where: { user_id: userId } });
+    await KnownDevice.destroy({ where: { user_id: userId } });
+    await AuditLog.destroy({ where: { user_id: userId }, hooks: false, individualHooks: false });
+    await Connection.destroy({ where: { [Op.or]: [{ sender_id: userId }, { receiver_id: userId }] } });
+
+    // Finally delete the user
+    await user.destroy();
+
+    logSecurityEvent('account_deleted', { userId });
+
+    res.status(200).json({
+        success: true,
+        message: 'Your account and all data have been permanently deleted.'
+    });
+});
+
 export default {
     getProfile,
     updateProfile,
@@ -300,5 +427,8 @@ export default {
     getActivityLog,
     getSecurityInfo,
     requestPinUpdateOtp,
-    updateSecurityPin
+    updateSecurityPin,
+    downloadLogArchive,
+    deleteEverything,
+    deleteAccount
 };

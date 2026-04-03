@@ -1,5 +1,5 @@
 import express from 'express';
-import { getNotifications, markAsRead, markAllAsRead } from '../controllers/notificationController.js';
+import { getNotifications, markAsRead, markAllAsRead, deleteNotification, clearAll } from '../controllers/notificationController.js';
 import { authenticate } from '../middlewares/auth.js';
 
 const router = express.Router();
@@ -25,5 +25,19 @@ router.put('/read-all', markAllAsRead);
  * @access  Private
  */
 router.put('/:id/read', markAsRead);
+
+/**
+ * @route   DELETE /api/v1/notifications/clear-all
+ * @desc    Clear all notifications for user
+ * @access  Private
+ */
+router.delete('/clear-all', clearAll);
+
+/**
+ * @route   DELETE /api/v1/notifications/:id
+ * @desc    Delete a specific notification
+ * @access  Private
+ */
+router.delete('/:id', deleteNotification);
 
 export default router;

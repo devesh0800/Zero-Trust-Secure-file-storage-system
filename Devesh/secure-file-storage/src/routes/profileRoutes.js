@@ -1,5 +1,5 @@
 import express from 'express';
-import { getProfile, updateProfile, updateEmail, updatePhone, changePassword, getStorageStats, getActivityLog, getSecurityInfo, requestPinUpdateOtp, updateSecurityPin } from '../controllers/profileController.js';
+import { getProfile, updateProfile, updateEmail, updatePhone, changePassword, getStorageStats, getActivityLog, getSecurityInfo, requestPinUpdateOtp, updateSecurityPin, downloadLogArchive, deleteEverything, deleteAccount } from '../controllers/profileController.js';
 import { authenticate } from '../middlewares/auth.js';
 import { apiLimiter } from '../middlewares/rateLimiter.js';
 
@@ -43,5 +43,8 @@ router.get('/activity', apiLimiter, getActivityLog);
 router.get('/security', apiLimiter, getSecurityInfo);
 router.post('/security-pin/request-otp', apiLimiter, requestPinUpdateOtp);
 router.post('/security-pin/update', apiLimiter, updateSecurityPin);
+router.post('/log-archive', apiLimiter, downloadLogArchive);
+router.delete('/delete-everything', apiLimiter, deleteEverything);
+router.delete('/delete-account', apiLimiter, deleteAccount);
 
 export default router;

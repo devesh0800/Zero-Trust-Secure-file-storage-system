@@ -10,7 +10,7 @@ import ShareModal from '../components/ShareModal';
 import AdvancedShareModal from '../components/AdvancedShareModal';
 import DownloadPinModal from '../components/DownloadPinModal';
 import PinUpdateModal from '../components/PinUpdateModal';
-
+import BackgroundAnimation from '../components/BackgroundAnimation';
 import { useSearchParams } from 'next/navigation';
 
 function ProfileContent() {
@@ -138,12 +138,19 @@ function ProfileContent() {
             showMessage('error', 'New passwords do not match.');
             return;
         }
+        
+        setIsLoading(true);
         try {
             await api.changePassword(passwordData.current, passwordData.new);
-            showMessage('success', 'Password updated successfully.');
+            showMessage('success', 'Safe password updated successfully. Your encryption profile is now recalculated.');
             setPasswordData({ current: '', new: '', confirm: '' });
+            // Scroll to top so user can see the success toast message
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (error: any) {
             showMessage('error', error.message || 'Failed to update password.');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -161,6 +168,7 @@ function ProfileContent() {
     const [isPinModalOpen, setIsPinModalOpen] = useState(false);
     const [selectedFileForDownload, setSelectedFileForDownload] = useState<any>(null);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [isDownloadingArchive, setIsDownloadingArchive] = useState(false);
     const [isPinUpdateModalOpen, setIsPinUpdateModalOpen] = useState(false);
 
     const handleShare = (file: any) => {
@@ -196,12 +204,18 @@ function ProfileContent() {
     };
 
     const confirmDownload = async (pin: string) => {
-        if (!selectedFileForDownload) return;
         setIsDownloading(true);
         try {
-            await api.downloadFile(selectedFileForDownload.id, selectedFileForDownload.name, pin);
-            setIsPinModalOpen(false);
-            showMessage('success', 'Safe decryption complete. Download started.');
+            if (isDownloadingArchive) {
+                await api.downloadLogArchive(pin);
+                setIsPinModalOpen(false);
+                setIsDownloadingArchive(false);
+                showMessage('success', 'Security logs exported successfully.');
+            } else if (selectedFileForDownload) {
+                await api.downloadFile(selectedFileForDownload.id, selectedFileForDownload.name, pin);
+                setIsPinModalOpen(false);
+                showMessage('success', 'Safe decryption complete. Download started.');
+            }
         } catch (error: any) {
             console.error('Download error:', error);
             showMessage('error', error.message || 'Verification failed. Please try again.');
@@ -262,8 +276,9 @@ function ProfileContent() {
     return (
         <div className="min-h-screen bg-[#030303] text-zinc-100 font-sans selection:bg-blue-500/30">
             <Navbar />
+            <BackgroundAnimation />
             
-            <main className="mx-auto max-w-5xl px-4 pt-36 pb-12">
+            <main className="mx-auto max-w-5xl px-4 pt-32 pb-12">
                 {/* Premium Header Card */}
                 <div className="mb-8 overflow-hidden rounded-3xl border border-zinc-800 bg-[#0c0c0e] shadow-2xl transition-all hover:shadow-blue-500/5">
                     <div className="bg-gradient-to-br from-blue-600/10 via-transparent to-indigo-600/5 p-8">
@@ -752,35 +767,95 @@ function ProfileContent() {
                             </div>
                             
                             {/* Password Change Form */}
-                            <div className="rounded-3xl border border-zinc-800 bg-[#0c0c0e] p-8 shadow-xl">
-                                <h3 className="text-sm font-black text-white mb-8 border-b border-zinc-800/50 pb-4 uppercase tracking-widest">Change Password</h3>
-                                <form onSubmit={handleUpdatePassword} className="space-y-6 max-w-xl">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Current Password</label>
-                                        <input type="password" placeholder="••••••••••••" value={passwordData.current} onChange={e => setPasswordData({...passwordData, current: e.target.value})} className="w-full rounded-2xl border border-zinc-700 bg-zinc-900/50 px-5 py-4 text-sm text-white outline-none focus:border-blue-500/50 transition-all font-mono" required />
+                            <div className="rounded-[2.5rem] border border-zinc-800 bg-[#0c0c0e] p-10 shadow-2xl relative overflow-hidden group">
+                                {/* Subtle background glow for the active section */}
+                                <div className="absolute top-0 right-0 h-32 w-32 bg-blue-500/5 blur-[80px] group-hover:bg-blue-500/10 transition-all duration-700" />
+                                
+                                <h3 className="text-sm font-black text-white mb-8 border-b border-zinc-800/50 pb-6 uppercase tracking-widest flex items-center gap-3">
+                                    <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+                                    Security Update
+                                </h3>
+                                <form onSubmit={handleUpdatePassword} className="space-y-8 max-w-xl">
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Old Password</label>
+                                        <input type="password" placeholder="••••••••••••" value={passwordData.current} onChange={e => setPasswordData({...passwordData, current: e.target.value})} className="w-full rounded-2xl border border-zinc-800 bg-zinc-950 px-6 py-5 text-sm text-white outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5 transition-all font-mono placeholder:opacity-30 shadow-inner" required />
                                     </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px) font-black text-zinc-500 uppercase tracking-widest">New Password</label>
-                                            <input type="password" placeholder="••••••••••••" value={passwordData.new} onChange={e => setPasswordData({...passwordData, new: e.target.value})} className="w-full rounded-2xl border border-zinc-700 bg-zinc-900/50 px-5 py-4 text-sm text-white outline-none focus:border-blue-500/50 transition-all font-mono" required />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <div className="space-y-3">
+                                            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">New Strong Password</label>
+                                            <input type="password" placeholder="••••••••••••" value={passwordData.new} onChange={e => setPasswordData({...passwordData, new: e.target.value})} className="w-full rounded-2xl border border-zinc-800 bg-zinc-950 px-6 py-5 text-sm text-white outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5 transition-all font-mono placeholder:opacity-30 shadow-inner" required />
                                         </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Confirm Password</label>
-                                            <input type="password" placeholder="••••••••••••" value={passwordData.confirm} onChange={e => setPasswordData({...passwordData, confirm: e.target.value})} className="w-full rounded-2xl border border-zinc-700 bg-zinc-900/50 px-5 py-4 text-sm text-white outline-none focus:border-blue-500/50 transition-all font-mono" required />
+                                        <div className="space-y-3">
+                                            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Confirm New Password</label>
+                                            <input type="password" placeholder="••••••••••••" value={passwordData.confirm} onChange={e => setPasswordData({...passwordData, confirm: e.target.value})} className="w-full rounded-2xl border border-zinc-800 bg-zinc-950 px-6 py-5 text-sm text-white outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5 transition-all font-mono placeholder:opacity-30 shadow-inner" required />
                                         </div>
                                     </div>
-                                    <button type="submit" className="bg-white text-black px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-200 transition-all active:scale-95 shadow-lg">Update Password</button>
+                                    <button 
+                                        type="submit" 
+                                        disabled={isLoading}
+                                        className="group relative overflow-hidden bg-white text-black px-12 py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-zinc-200 transition-all active:scale-95 shadow-xl disabled:opacity-50 disabled:active:scale-100"
+                                    >
+                                        <span className="relative z-10">{isLoading ? 'Saving...' : 'Update Password Now'}</span>
+                                        <div className="absolute inset-x-0 bottom-0 h-1 bg-blue-600 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                                    </button>
                                 </form>
                             </div>
 
                             <div className="rounded-3xl border border-rose-500/20 bg-rose-500/5 p-8">
                                 <h3 className="text-xs font-black text-rose-500 mb-6 uppercase tracking-[0.3em] flex items-center gap-2">
                                     <div className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-                                    Delete Account
+                                    Danger Zone
                                 </h3>
                                 <div className="flex flex-wrap gap-4">
-                                    <button className="border border-zinc-800 text-zinc-400 py-3 px-8 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-900 transition-all">Download Log Archive</button>
-                                    <button className="bg-rose-600/10 text-rose-500 py-3 px-8 border border-rose-500/20 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all">Delete Everything</button>
+                                    <button 
+                                        onClick={() => {
+                                            setIsDownloadingArchive(true);
+                                            setSelectedFileForDownload({ name: 'SECURITY_LOG_ARCHIVE.JSON' });
+                                            setIsPinModalOpen(true);
+                                        }}
+                                        className="border border-zinc-800 text-zinc-400 py-3 px-8 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-900 transition-all"
+                                    >
+                                        Download Log Archive
+                                    </button>
+                                    <button 
+                                        onClick={async () => {
+                                            const confirmed = window.confirm('⚠️ WARNING: This will permanently delete ALL your files, sessions, and logs. Your account will remain active but empty.\n\nAre you absolutely sure?');
+                                            if (!confirmed) return;
+                                            try {
+                                                setIsLoading(true);
+                                                await api.deleteEverything();
+                                                showMessage('success', 'All data has been permanently deleted.');
+                                                setIsLoading(false);
+                                            } catch (err) {
+                                                showMessage('error', 'Failed to delete data.');
+                                                setIsLoading(false);
+                                            }
+                                        }}
+                                        disabled={isLoading}
+                                        className="bg-rose-600/10 text-rose-500 py-3 px-8 border border-rose-500/20 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all disabled:opacity-50"
+                                    >
+                                        Delete Everything
+                                    </button>
+                                    <button 
+                                        onClick={async () => {
+                                            const confirmed = window.confirm('🚨 CRITICAL: This will PERMANENTLY DELETE your entire account and ALL associated data. This action CANNOT be undone.\n\nType OK to confirm.');
+                                            if (!confirmed) return;
+                                            const doubleConfirm = window.confirm('Are you 100% sure? Your account will be gone forever.');
+                                            if (!doubleConfirm) return;
+                                            try {
+                                                setIsLoading(true);
+                                                await api.deleteAccount();
+                                                window.location.href = '/login';
+                                            } catch (err) {
+                                                showMessage('error', 'Failed to delete account.');
+                                                setIsLoading(false);
+                                            }
+                                        }}
+                                        disabled={isLoading}
+                                        className="bg-rose-700 text-white py-3 px-8 border border-rose-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-800 transition-all disabled:opacity-50"
+                                    >
+                                        Delete Account
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -807,7 +882,10 @@ function ProfileContent() {
 
             <DownloadPinModal 
                 isOpen={isPinModalOpen} 
-                onClose={() => setIsPinModalOpen(false)}
+                onClose={() => {
+                    setIsPinModalOpen(false);
+                    setIsDownloadingArchive(false);
+                }}
                 onConfirm={confirmDownload}
                 fileName={selectedFileForDownload?.name || ''}
                 isDownloading={isDownloading}

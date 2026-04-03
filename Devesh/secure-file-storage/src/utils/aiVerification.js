@@ -8,12 +8,12 @@ import crypto from 'crypto';
 const activeChallenges = new Map();
 
 /**
- * AI Verification Engine
- * Generates dynamic security questions based on user's recent activity
+ * AI Verification Engine - Mixed Input Protocol
+ * Generates dynamic security questions (MCQ or Input)
  */
 
 export async function generateChallenge(userId, ipAddress) {
-    // 1. Fetch user's recent context
+    // 1. Fetch user context
     const recentLogs = await AuditLog.findAll({
         where: { user_id: userId },
         order: [['created_at', 'DESC']],
@@ -28,40 +28,49 @@ export async function generateChallenge(userId, ipAddress) {
         attributes: ['device_name', 'ip_address', 'first_seen', 'last_used']
     });
 
-    // We need some mock data fallback in case user is brand new
-    // or if the LLM fails/no API key is provided
+    const User = AuditLog.sequelize.models.users;
+    const user = await User.findByPk(userId);
+
     let challengeData = null;
 
+    // Use AI to generate 3 questions if API key is available
     if (process.env.GEMINI_API_KEY) {
         try {
             const ai = new GoogleGenerativeAI({ apiKey: process.env.GEMINI_API_KEY });
             
             const prompt = `
-You are a strict security auditor. I will give you the recent login logs and known devices of a user.
-Generate exactly 3 multiple choice questions to verify the user's identity based ONLY on this data.
-Make the questions challenging but answerable by the real user.
-Never output the raw IP addresses, output the city instead if you can infer it, or ask about the browser/OS.
+You are the "Security Sentinel," a high-level identity verification AI for the SecureVault Zero-Trust Network. 
+Your task is to generate exactly 3 challenging verification questions.
 
-Log Data: ${JSON.stringify(recentLogs)}
-Device Data: ${JSON.stringify(devices)}
+VERIFICATION DATA:
+- Recent Logs: ${JSON.stringify(recentLogs)}
+- Known Devices: ${JSON.stringify(devices)}
+- User Profile: { "username": "${user.username}", "phone_suffix": "${user.phone_number ? user.phone_number.slice(-4) : 'None'}" }
+
+CRITICAL GUIDELINES:
+1. Each question must have a 'type': either 'mcq' (options list) or 'input' (user types answer).
+2. For Phone Number: Ask for the last 4 digits as an 'input' type.
+3. For Username: Ask as an 'input' type.
+4. For Activity/Devices: Use 'mcq' with plausible fake options.
+5. Use a cold, professional, security-focused tone.
 
 Respond strictly in valid JSON format:
 {
   "questions": [
-    {
-      "id": "q1",
-      "question": "Question text here",
-      "options": ["A", "B", "C", "D"],
-      "correctOptionIndex": 1
-    }
+    { "id": "q1", "type": "input", "question": "Question text here" },
+    { "id": "q2", "type": "mcq", "question": "Question text", "options": ["A", "B", "C", "D"], "correctOptionIndex": 0 }
+  ],
+  "expectedAnswers": [
+      { "type": "input", "value": "Correct Answer Content" },
+      { "type": "mcq", "value": 0 }
   ]
 }
             `;
 
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: prompt,
-                config: {
+                model: 'gemini-2.0-flash',
+                contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                generationConfig: {
                     responseMimeType: 'application/json'
                 }
             });
@@ -74,45 +83,31 @@ Respond strictly in valid JSON format:
 
     // Fallback: Heuristic Challenge Generator (If AI is down or no key)
     if (!challengeData) {
-        challengeData = generateFallbackChallenge(devices, recentLogs);
+        challengeData = generateFallbackChallenge(devices, recentLogs, user);
     }
 
     // Store the expected answers securely
-    const expectedAnswers = challengeData.questions.map(q => q.correctOptionIndex);
-    
     activeChallenges.set(userId, {
-        expectedAnswers,
+        expectedAnswers: challengeData.expectedAnswers,
         expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes to answer
         attempts: 0
     });
 
     logSecurityEvent('ai_challenge_generated', { userId, ip: ipAddress });
 
-    const responsePayload = challengeData.questions.map(q => ({
+    // Return questions WITHOUT the correct answers to the frontend
+    return challengeData.questions.map(q => ({
         id: q.id,
         question: q.question,
-        options: q.options
+        type: q.type || 'mcq',
+        options: q.options || []
     }));
-
-    // For automated testing in development mode only
-    if (process.env.NODE_ENV === 'development') {
-        return {
-            questions: responsePayload,
-            debug_correct_indices: expectedAnswers
-        };
-    }
-
-    // Return questions WITHOUT the correct answers
-    return responsePayload;
 }
 
 /**
  * Verify user's answers to the challenge
- * @param {string} userId - UUID
- * @param {Array<number>} answers - Array of selected option indices
- * @returns {boolean} True if all correct, False otherwise
  */
-export function verifyAnswers(userId, answers) {
+export async function verifyAnswers(userId, answers) {
     const challenge = activeChallenges.get(userId);
 
     if (!challenge) {
@@ -126,19 +121,35 @@ export function verifyAnswers(userId, answers) {
 
     challenge.attempts++;
 
-    // Strict validation: must match exactly
-    const isCorrect = 
-        answers.length === challenge.expectedAnswers.length &&
-        answers.every((ans, index) => ans === challenge.expectedAnswers[index]);
+    const User = AuditLog.sequelize.models.users;
+    const user = await User.findByPk(userId);
+
+    let isCorrect = true;
+
+    for (let i = 0; i < challenge.expectedAnswers.length; i++) {
+        const expected = challenge.expectedAnswers[i];
+        const actual = answers[i];
+
+        if (expected.type === 'mcq') {
+            if (parseInt(actual) !== expected.value) isCorrect = false;
+        } else if (expected.type === 'pin') {
+            const pinMatch = await user.verifySecurityPin(actual);
+            if (!pinMatch) isCorrect = false;
+        } else if (expected.type === 'input') {
+            if (actual?.toString().trim().toLowerCase() !== expected.value?.toString().toLowerCase()) isCorrect = false;
+        }
+        
+        if (!isCorrect) break;
+    }
 
     if (isCorrect) {
-        activeChallenges.delete(userId); // Consume the challenge
+        activeChallenges.delete(userId);
         return true;
     }
 
     if (challenge.attempts >= 3) {
         activeChallenges.delete(userId);
-        throw new Error('Max attempts reached. Please request a new challenge.');
+        throw new Error('Authentication failed: Multiple unauthorized synchronization attempts detected.');
     }
 
     return false;
@@ -147,32 +158,37 @@ export function verifyAnswers(userId, answers) {
 /**
  * Fallback Challenge Generator (Rule-based)
  */
-function generateFallbackChallenge(devices, logs) {
-    const defaultDevice = devices[0]?.device_name || 'Windows/Chrome';
-    const fakeDevices = ['MacBook/Safari', 'Linux/Firefox', 'Android/Chrome', 'iPhone/Safari']
-        .filter(d => d !== defaultDevice);
+function generateFallbackChallenge(devices, logs, user) {
+    const questions = [];
+    const expected = [];
 
-    // Question 1: Device
-    const options1 = [defaultDevice, fakeDevices[0], fakeDevices[1], fakeDevices[2]].sort(() => Math.random() - 0.5);
-    const correct1 = options1.indexOf(defaultDevice);
+    // 1. Username (Input)
+    questions.push({ id: 'q1', type: 'input', question: 'Identity Protocol: Enter the unique administrative handle (Username) assigned to this node.' });
+    expected.push({ type: 'input', value: user.username });
 
-    // Question 2: Login Count
-    const actualLogins = logs.filter(l => l.event_type === 'login_success').length;
-    const options2 = [actualLogins, actualLogins + 2, actualLogins + 5, actualLogins + 10].sort(() => Math.random() - 0.5);
-    const correct2 = options2.indexOf(actualLogins);
+    // 2. Phone Suffix (Input)
+    if (user.phone_number) {
+        questions.push({ id: 'q2', type: 'input', question: 'Recovery Link Check: Enter the terminal 4 digits of the mobile device linked to this profile.' });
+        expected.push({ type: 'input', value: user.phone_number.slice(-4) });
+    } else {
+        const defaultDevice = devices[0]?.device_name || 'Authorized Terminal';
+        questions.push({ id: 'q2', type: 'mcq', question: 'Hardware Handshake: Identify the specific terminal profile used for your latest secure session.', options: [defaultDevice, 'Node/Android', 'Linux/Core-64', 'iPhone/Secure-iOS'].sort(() => Math.random() - 0.5) });
+        const correctIdx = questions[questions.length-1].options.indexOf(defaultDevice);
+        expected.push({ type: 'mcq', value: correctIdx });
+    }
 
-    // Question 3: Recent Activity Time
-    const today = new Date().toLocaleDateString();
-    const options3 = ['Yesterday', today, 'Last Week', 'Never'].sort(() => Math.random() - 0.5);
-    const correct3 = options3.indexOf(today);
+    // 3. Security PIN (PIN Validation)
+    if (user.security_pin_hash) {
+        questions.push({ id: 'q3', type: 'pin', question: 'Security Protocol: Enter the 6-digit synchronization code (Security PIN) required for node restoration.' });
+        expected.push({ type: 'pin' });
+    } else {
+        const monthYear = new Date(user.created_at).toLocaleString('default', { month: 'long', year: 'numeric' });
+        questions.push({ id: 'q3', type: 'mcq', question: 'Temporal Sync: Identify the specific month and year this Vault node was first commissioned.', options: [monthYear, 'January 2024', 'May 2023', 'December 2023'].sort(() => Math.random() - 0.5) });
+        const correctIdx = questions[questions.length-1].options.indexOf(monthYear);
+        expected.push({ type: 'mcq', value: correctIdx });
+    }
 
-    return {
-        questions: [
-            { id: "q1", question: "Which primary device have you been using to access this account?", options: options1, correctOptionIndex: correct1 },
-            { id: "q2", question: "Roughly how many successful logins have you made recently?", options: options2, correctOptionIndex: correct2 },
-            { id: "q3", question: "When was your last recorded activity on this account?", options: options3, correctOptionIndex: correct3 }
-        ]
-    };
+    return { questions, expectedAnswers: expected };
 }
 
 export default { generateChallenge, verifyAnswers };

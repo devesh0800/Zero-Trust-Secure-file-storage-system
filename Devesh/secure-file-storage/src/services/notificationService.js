@@ -52,10 +52,30 @@ export async function markAllAsRead(userId) {
     return true;
 }
 
+export async function deleteNotification(userId, notificationId) {
+    const result = await Notification.destroy({
+        where: { id: notificationId, user_id: userId }
+    });
+    
+    if (!result) {
+        throw new AppError('Notification not found', 404);
+    }
+    return true;
+}
+
+export async function deleteAllNotifications(userId) {
+    await Notification.destroy({
+        where: { user_id: userId }
+    });
+    return true;
+}
+
 export default {
     createNotification,
     getUserNotifications,
     getUnreadCount,
     markAsRead,
-    markAllAsRead
+    markAllAsRead,
+    deleteNotification,
+    deleteAllNotifications
 };
