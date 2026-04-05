@@ -6,29 +6,29 @@ import BackgroundAnimation from '../components/BackgroundAnimation';
 import Script from 'next/script';
 
 const CATEGORIES = [
-  { id: 'security', icon: '🔐', title: 'Encryption & Security', desc: 'AES-256, end-to-end encryption, security policies.', color: 'ic-purple' },
-  { id: 'files', icon: '📁', title: 'File Upload/Download', desc: 'Supported formats, size limits, bulk operations.', color: 'ic-blue' },
-  { id: 'sharing', icon: '🔗', title: 'File Sharing', desc: 'Permissions, share links, access control, expiry.', color: 'ic-green' },
-  { id: '2fa', icon: '🔑', title: '2FA & Security PIN', desc: 'Setup 2FA, 6-digit PIN, recovery codes.', color: 'ic-orange' },
-  { id: 'network', icon: '🌐', title: 'Network & Sync', desc: 'Multi-device sync, connection issues, offline mode.', color: 'ic-teal' },
-  { id: 'account', icon: '👤', title: 'Account & Access', desc: 'Login, roles, enterprise SSO, password reset.', color: 'ic-pink' },
-  { id: 'billing', icon: '💳', title: 'Billing & Plans', desc: 'Enterprise invoices, seats, upgrades.', color: 'ic-yellow' },
-  { id: 'all', icon: '🚀', title: 'Getting Started', desc: 'Onboarding guide for new enterprise users.', color: 'ic-red' },
+  { id: 'security', icon: '🔐', title: 'Privacy & Security', desc: 'Secure storage, protecting your files, and safety rules.', color: 'ic-purple' },
+  { id: 'files', icon: '📁', title: 'File Upload/Download', desc: 'Types of files, size limits, and how to upload.', color: 'ic-blue' },
+  { id: 'sharing', icon: '🔗', title: 'File Sharing', desc: 'Sending files, links, and who can see them.', color: 'ic-green' },
+  { id: '2fa', icon: '🔑', title: 'Extra Security & PIN', desc: 'Setup extra safety steps and your storage PIN.', color: 'ic-orange' },
+  { id: 'network', icon: '🌐', title: 'Device & Sync', desc: 'Using multiple devices and connection help.', color: 'ic-teal' },
+  { id: 'account', icon: '👤', title: 'Account & Access', desc: 'Signing in, roles, and resetting your password.', color: 'ic-pink' },
+  { id: 'billing', icon: '💳', title: 'Plans & Billing', desc: 'Invoices, storage limits, and upgrades.', color: 'ic-yellow' },
+  { id: 'all', icon: '🚀', title: 'Getting Started', desc: 'A simple guide for new users joining our platform.', color: 'ic-red' },
 ];
 
 const FAQ_DATA = [
   // --- PRIORITY: LOGIN & ACCESS PROTOCOLS ---
-  { cat: 'login', q: 'Login related issues - Troubleshooting', a: 'Login problems usually depend on (1) Wrong Credentials: Reset via email. (2) MFA Sync: Check your device time. (3) Browser: Try Incognito mode. (4) Account Lock: Wait 15 mins after 5 failed attempts or contact Admin.' },
-  { cat: 'access', q: 'Forgot Security PIN?', a: 'Go to Profile -> Security -> Update PIN. You will need to verify your identity via OTP sent to your registered email.' },
-  { cat: 'login', q: 'Is SSO supported?', a: 'Yes, we support SAML 2.0 and OAuth (Google/Okta). If your enterprise has SSO enabled, use the "Login with SSO" button on the portal.' },
-  { cat: 'access', q: 'I am getting "Access Denied" error', a: 'Check if your Security PIN is set correctly. If you are a team member, ensure the file owner has granted you "View" or "Edit" permissions.' },
-  { cat: 'login', q: 'Can I stay logged in forever?', a: 'For security, sessions expire after 24 hours of inactivity. You can manage active sessions in Settings -> Security -> Active Sessions.' },
+  { cat: 'login', q: 'Login related issues - Troubleshooting', a: 'Login problems usually depend on (1) Wrong Password: Reset via email. (2) Extra Security Sync: Check your device time. (3) Browser: Try Incognito mode. (4) Account Lock: Wait 15 mins after 5 failed attempts or contact Support.' },
+  { cat: 'access', q: 'Forgot Safety PIN?', a: 'Go to Profile -> Security -> Update PIN. You will need to verify your identity via a code sent to your registered email.' },
+  { cat: 'login', q: 'Is SSO supported?', a: 'Yes, we support easy login via Google or Microsoft. If your team has this enabled, use the "Login with Work Account" button.' },
+  { cat: 'access', q: 'I am getting "Access Denied" error', a: 'Check if your Safety PIN is set correctly. If you are a team member, ensure the file owner has given you "View" or "Edit" access.' },
+  { cat: 'login', q: 'Can I stay logged in forever?', a: 'For safety, sessions close after 24 hours of inactivity. You can manage your logins in Settings -> Security -> Active Logins.' },
 
   // --- SECURITY & ENCRYPTION ---
-  { cat: 'security', q: 'SecureVault mein kaunsa encryption use hota hai?', a: 'SecureVault AES-256 (Advanced Encryption Standard) use karta hai — jo military-grade encryption hai. Aapki files upload hote hi encrypt ho jaati hain aur sirf aap unhe decrypt kar sakte ho. Hamare servers ko bhi aapka data access nahi hota — yahi end-to-end encryption ka matlab hai.' },
-  { cat: 'security', q: 'Kya meri files Zoho/third-party servers pe store hoti hain?', a: 'Nahi. Aapki files SecureVault ke dedicated enterprise servers pe store hoti hain. Data kabhi third-party ko share nahi hota. Enterprise plan mein aap apna khud ka storage region bhi choose kar sakte hain (India, EU, US).' },
-  { cat: 'security', q: 'Kya SecureVault compliance certifications support karta hai?', a: 'Haan. SecureVault ISO 27001, SOC 2 Type II, aur GDPR compliant hai. Enterprise customers ke liye compliance reports aur audit logs available hain.' },
-  { cat: 'security', q: 'Zero-Knowledge Architecture kya hai?', a: 'Iska matlab hai ki aapke encryption keys sirf aapke paas hain. SecureVault staff bhi aapka data nahi dekh sakta, kyunki unke paas keys ka access nahi hota.' },
+  { cat: 'security', q: 'SecureVault mein kaunsa safety use hota hai?', a: 'SecureVault military-grade encryption use karta hai—jo sabse strong safety standard hai. Aapki files upload hote hi safe ho jaati hain aur sirf aap unhe dekh sakte ho. Hamare servers ko bhi aapka data access nahi hota—yahi private storage ka matlab hai.' },
+  { cat: 'security', q: 'Kya meri files third-party servers pe store hoti hain?', a: 'Nahi. Aapki files SecureVault ke dedicated servers pe store hoti hain. Data kabhi third-party ko share nahi hota. Aap apni pasand ka storage region bhi choose kar sakte hain.' },
+  { cat: 'security', q: 'Kya SecureVault safety standard follow karta hai?', a: 'Haan. SecureVault world-class safety standards (ISO, SOC2, GDPR) follow karta hai. Hum regular safety audits bhi karte hain.' },
+  { cat: 'security', q: 'Private Storage kaise kaam karta hai?', a: 'Iska matlab hai ki aapki secret keys sirf aapke paas hain. SecureVault staff bhi aapka data nahi dekh sakta kyunki unke paas keys nahi hoti.' },
 
   // --- FILES & STORAGE ---
   { cat: 'files', q: 'Kaunse file formats support hote hain?', a: 'SecureVault lagbhag sabhi formats support karta hai: Documents (PDF, DOCX, XLSX, PPTX), Images (JPG, PNG, WEBP, SVG), Videos (MP4, MOV, AVI), Archives (ZIP, RAR, 7Z), aur Code files (JS, PY, JSON etc.). Maximum file size enterprise plan mein 50GB per file hai.' },
@@ -37,10 +37,10 @@ const FAQ_DATA = [
   { cat: 'files', q: 'Upload speed slow kyun hai?', a: 'Upload speed aapke internet provider aur hamare encryption engine pe depend karti hai. AES-256 encryption process mein thoda waqt lagta hai taaki file fully secure ho sake.' },
 
   // --- 2FA & ACCESS ---
-  { cat: '2fa', q: 'Two-Factor Authentication (2FA) kaise setup karein?', a: 'Settings → Security → Two-Factor Authentication → Enable karo. Apna authenticator app (Google Authenticator) open karo aur QR code scan karo. 6-digit code enter karo confirm karne ke liye.' },
-  { cat: '2fa', q: '6-Digit Security PIN kya hai aur kaise set karein?', a: 'Security PIN ek extra layer of protection hai jo sensitive files ya folders access karne pe maanga jaata hai. Settings → Security → Security PIN → Set PIN.' },
-  { cat: '2fa', q: '2FA code nahi aa raha / authenticator app kaam nahi kar raha?', a: 'Pehle apne phone ka time sync check karo. Agar phir bhi kaam na kare toh backup codes use karo jo aapne setup ke waqt save kiye the. Backup codes bhi nahi hain toh support se contact karo.' },
-  { cat: 'account', q: 'Password bhool gaya toh kya karein?', a: 'Login page pe "Forgot Password" click karein. Aapke register email pe ek reset link aayegi. Yaad rakhein, password change karne ke baad puraani files access karne ke liye Master Key ki zarurat pad sakti hai.' },
+  { cat: '2fa', q: 'Extra Security kaise setup karein?', a: 'Settings → Security → Extra Security → Enable karo. Apna security app (Google Authenticator) open karo aur QR code scan karo. 6-digit code enter karo confirm karne ke liye.' },
+  { cat: '2fa', q: '6-Digit Storage PIN kya hai aur kaise set karein?', a: 'Storage PIN ek extra layer of safety hai jo private files ya folders access karne pe maanga jaata hai. Settings → Security → Safety PIN → Set PIN.' },
+  { cat: '2fa', q: 'Security code nahi aa raha ya app kaam nahi kar raha?', a: 'Pehle apne phone ka time sync check karo. Agar phir bhi kaam na kare toh backup codes use karo jo aapne setup ke waqt save kiye the. Agar codes nahi hain toh humein support pe message karo.' },
+  { cat: 'account', q: 'Password bhool gaya toh kya karein?', a: 'Login page pe "Forgot Password" click karein. Aapke email pe ek link aayegi. Yaad rakhein, password change karne ke baad puraani files access karne ke liye Privacy Key ki zarurat pad sakti hai.' },
 
   // --- SHARING & NETWORK ---
   { cat: 'sharing', q: 'File share karte waqt permissions kaise set karein?', a: 'File → Share → Permission type select karo: View Only, Comment, Edit, Full Access. Enterprise mein team-level aur department-level permissions bhi set ho sakti hain.' },
@@ -62,7 +62,7 @@ export default function HelpPage() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [chatMessages, setChatMessages] = useState([
-    { role: 'assistant', content: 'Hello! I am VaultAI, your security assistant. How can I protect your data today?' }
+    { role: 'assistant', content: 'Hello! I am SafetyAI, your safety assistant. How can I help you keep your files safe today?' }
   ]);
   const [inputMessage, setInputMessage] = useState('');
 
@@ -107,10 +107,10 @@ export default function HelpPage() {
       }
 
       const response = match 
-        ? `VaultAI Analyst: ${match.a}` 
+        ? `SafetyAI: ${match.a}` 
         : (query.includes("hi") || query.includes("hello"))
-        ? "Hi! I am VaultAI, your tech assistant. Ask me anything about encryption or access."
-        : "I couldn't find a direct answer in our docs. Contact support@securevault.com for faster help.";
+        ? "Hi! I am SafetyAI, your safety assistant. Ask me anything about storage or access."
+        : "I couldn't find a direct answer. Contact support@securevault.com for faster help.";
 
       setChatMessages(prev => [...prev, { role: 'assistant', content: response }]);
       setIsTyping(false);
@@ -192,8 +192,8 @@ export default function HelpPage() {
           <div className="flex items-center gap-3">
             <div className="w-2.5 h-2.5 rounded-full bg-[#34d399] shadow-[0_0_8px_#34d399] animate-pulse"></div>
             <div>
-              <div className="text-[0.85rem] font-semibold text-[#34d399]">All Systems Operational</div>
-              <div className="text-[0.78rem] text-[#8b8ba8]">Encryption engine, file sync & API — all running normally</div>
+              <div className="text-[0.85rem] font-semibold text-[#34d399]">All Systems Running Perfectly</div>
+              <div className="text-[0.78rem] text-[#8b8ba8]">Everything is running smoothly and your files are safe.</div>
             </div>
           </div>
           <div className="hidden md:flex gap-5 mt-4 md:mt-0">
@@ -202,8 +202,8 @@ export default function HelpPage() {
               <div className="text-[0.7rem] text-[#8b8ba8]">Uptime (30d)</div>
             </div>
             <div className="text-center">
-              <div className="font-mono text-[0.9rem] text-[#f0f0fa]">AES-256</div>
-              <div className="text-[0.7rem] text-[#8b8ba8]">Encryption</div>
+              <div className="font-mono text-[0.9rem] text-[#f0f0fa]">Secure</div>
+              <div className="text-[0.7rem] text-[#8b8ba8]">Protection</div>
             </div>
             <div className="text-center">
               <div className="font-mono text-[0.9rem] text-[#f0f0fa]">&lt; 80ms</div>
@@ -324,7 +324,7 @@ export default function HelpPage() {
               </div>
               <h4 className="text-[0.95rem] font-bold mb-1.5">Phone Support</h4>
               <p className="text-[0.8rem] text-[#8b8ba8] leading-relaxed">Critical issues ke liye seedha phone karo. Enterprise customers ko priority queue milti hai.</p>
-              <div className="mt-3.5 text-[0.75rem] text-[#8b8ba8] flex items-center gap-1.5">📞 1800-000-0000 (Toll Free)</div>
+              <div className="mt-3.5 text-[0.75rem] text-[#8b8ba8] flex items-center gap-1.5">📞 1800-000-0000</div>
             </a>
           </div>
         </section>
@@ -367,8 +367,8 @@ export default function HelpPage() {
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-xl">🤖</div>
               <div>
-                <h3 className="text-sm font-bold text-white">VaultAI Support</h3>
-                <p className="text-[10px] text-white/60">Automated Security Assistant</p>
+                <h3 className="text-sm font-bold text-white">SafetyAI</h3>
+                <p className="text-[10px] text-white/60">Your Safety Assistant</p>
               </div>
             </div>
             <button onClick={() => setIsChatOpen(false)} className="text-white/60 hover:text-white transition-colors">

@@ -2,9 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 import * as api from './api';
-import { useIdleTimeout } from '@/hooks/use-idle-timeout';
 import { useRouter, usePathname } from 'next/navigation';
-import IdleWarningModal from '../app/components/IdleWarningModal';
 
 interface User {
     id: string;
@@ -27,6 +25,7 @@ interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
     isLoading: boolean;
+    sessionDuration: string;
     sessionMessage: { type: 'error' | 'info'; text: string } | null;
     login: (identifier: string, password: string, captchaId: string, captchaText: string) => Promise<any>;
     verifyMfa: (tempToken: string, mfaToken: string) => Promise<any>;
@@ -42,14 +41,34 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
+    const [sessionDuration, setSessionDuration] = useState('00:00:00');
     const [isLoading, setIsLoading] = useState(true);
     const [sessionMessage, setSessionMessage] = useState<{ type: 'error' | 'info'; text: string } | null>(null);
     const router = useRouter();
     const pathname = usePathname();
     const isPublicPage = pathname === '/login' || pathname === '/register' || pathname === '/';
 
-    const [isIdleWarningOpen, setIsIdleWarningOpen] = useState(false);
-    const [idleCountdown, setIdleCountdown] = useState(120); // 2 minutes
+    useEffect(() => {
+        if (!user || isPublicPage) {
+            setSessionDuration('00:00:00');
+            return;
+        }
+
+        const startTime = sessionStorage.getItem('session_start') || Date.now().toString();
+        if (!sessionStorage.getItem('session_start')) sessionStorage.setItem('session_start', startTime);
+
+        const timer = setInterval(() => {
+            const now = Date.now();
+            const diff = now - parseInt(startTime);
+            const hours = Math.floor(diff / 3600000);
+            const minutes = Math.floor((diff % 3600000) / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+            setSessionDuration(
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+            );
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [user, isPublicPage]);
 
     const clearMessage = () => setSessionMessage(null);
 
@@ -61,6 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         setUser(null);
         api.setAccessToken(null);
+        sessionStorage.removeItem('session_start');
 
         if (reason) {
             setSessionMessage({ type: 'error', text: reason });
@@ -85,57 +105,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, [isPublicPage, logoutFn]);
 
-    // 1. Idle Timeout (5 minutes phase 1)
-    const handleIdleWarning = useCallback(() => {
-        if (user && !isPublicPage) {
-            setIsIdleWarningOpen(true);
-            setIdleCountdown(120);
-        }
-    }, [user, isPublicPage]);
-
-    const { resetTimer } = useIdleTimeout({
-        onIdle: handleIdleWarning,
-        timeoutInMinutes: 5
-    });
-
-    // Stage 2: Handle the 2-minute countdown when warning is active
-    useEffect(() => {
-        let timer: NodeJS.Timeout;
-        if (isIdleWarningOpen && idleCountdown > 0) {
-            timer = setInterval(() => {
-                setIdleCountdown(prev => prev - 1);
-            }, 1000);
-        } else if (isIdleWarningOpen && idleCountdown <= 0) {
-            logoutFn("Logged out due to security protocol: Inactivity detected for 7+ minutes.");
-            setIsIdleWarningOpen(false);
-        }
-
-        return () => {
-            if (timer) clearInterval(timer);
-        };
-    }, [isIdleWarningOpen, idleCountdown, logoutFn]);
-
-    // Auto-close warning on any user activity
-    useEffect(() => {
-        if (!isIdleWarningOpen) return;
-
-        const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click', 'wheel'];
-        const handleActivity = () => {
-            setIsIdleWarningOpen(false);
-            resetTimer(); 
-        };
-
-        events.forEach(e => window.addEventListener(e, handleActivity));
-        return () => events.forEach(e => window.removeEventListener(e, handleActivity));
-    }, [isIdleWarningOpen, resetTimer]);
-
-    // 2. Heartbeat (Check session status every 30 seconds)
+    // Heartbeat (Check session status every 30 seconds)
     useEffect(() => {
         if (!user || isPublicPage) return;
 
         const interval = setInterval(() => {
             refreshUser();
-        }, 10000); // 10 seconds
+        }, 30000); // 30 seconds
 
         return () => clearInterval(interval);
     }, [user, isPublicPage, refreshUser]);
@@ -193,6 +169,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 user,
                 isAuthenticated: !!user,
                 isLoading,
+                sessionDuration,
                 sessionMessage,
                 login: loginFn,
                 verifyMfa: verifyMfaFn,
@@ -205,16 +182,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }}
         >
             {children}
-            
-            <IdleWarningModal 
-                isOpen={isIdleWarningOpen}
-                timeLeft={idleCountdown}
-                onStayLoggedIn={() => {
-                    setIsIdleWarningOpen(false);
-                    resetTimer();
-                }}
-                onLogout={() => logoutFn("Manual logout from activity prompt.")}
-            />
 
             {sessionMessage && (
                 <div className="fixed bottom-4 right-4 z-[9999] animate-in overflow-hidden rounded-xl border border-red-500/20 bg-[#12121e]/95 p-4 shadow-2xl backdrop-blur-md max-w-sm">

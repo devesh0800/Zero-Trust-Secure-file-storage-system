@@ -42,41 +42,34 @@ interface FileCardProps {
     onDeleted: () => void;
     onShare?: (file: FileItem) => void;
     onAdvShare?: (file: FileItem) => void;
+    onDownload?: (file: FileItem) => void;
     variant?: 'default' | 'compact';
     isRestricted?: boolean;
+    isPinSet?: boolean;
 }
 
-export default function FileCard({ file, onDeleted, onShare, onAdvShare, variant = 'default', isRestricted = false }: FileCardProps) {
+export default function FileCard({ file, onDeleted, onShare, onAdvShare, onDownload, variant = 'default', isRestricted = false, isPinSet = true }: FileCardProps) {
     const [isDownloading, setIsDownloading] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const { icon, color } = getFileIcon(file.file_extension);
 
-    const [showPinModal, setShowPinModal] = useState(false);
-    const [pinError, setPinError] = useState<string | null>(null);
+    const handleDownload = async () => {
+        if (onDownload) {
+            onDownload(file);
+            return;
+        }
 
-    const handleDownload = async (pin?: string) => {
+        // Fallback for direct usage if onDownload not provided (shouldn't happen in dashboard now)
+        if (!isPinSet) {
+            alert('SECURITY PROTOCOL: Please establish a Security PIN in your Profile settings first.');
+            window.location.href = '/profile?tab=security';
+            return;
+        }
         setIsDownloading(true);
-        setPinError(null);
         try {
-            await downloadFile(file.id, file.original_filename, pin);
-            setShowPinModal(false);
-        } catch (err) {
-            const apiErr = err as ApiError;
-            if (apiErr.status === 403) {
-                // If the backend says PIN is required or no PIN set
-                if (apiErr.message.includes('NOT set') || apiErr.message.includes('create a 6-digit')) {
-                    alert(apiErr.message);
-                } else {
-                    // It's a standard "PIN required" or "Invalid PIN"
-                    if (!showPinModal) {
-                        setShowPinModal(true);
-                    } else {
-                        setPinError(apiErr.message);
-                    }
-                }
-            } else {
-                alert('Download failed: ' + (err instanceof Error ? err.message : 'Unknown error'));
-            }
+            await downloadFile(file.id, file.original_filename);
+        } catch (err: any) {
+            alert('Download failed: ' + (err.message || 'Unknown error'));
         }
         setIsDownloading(false);
     };
@@ -98,7 +91,7 @@ export default function FileCard({ file, onDeleted, onShare, onAdvShare, variant
             {variant === 'compact' ? (
                 <div className="flex items-center gap-2">
                     <button
-                        onClick={() => handleDownload()}
+                        onClick={handleDownload}
                         disabled={isDownloading}
                         className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500/10 text-violet-400 transition-all hover:bg-violet-500/20 disabled:opacity-50"
                         title="Download"
@@ -166,7 +159,7 @@ export default function FileCard({ file, onDeleted, onShare, onAdvShare, variant
                     {/* Actions */}
                     <div className="mt-4 flex gap-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                         <button
-                            onClick={() => handleDownload()}
+                            onClick={handleDownload}
                             disabled={isDownloading}
                             className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-violet-500/10 px-3 py-2 text-xs font-medium text-violet-400 transition-all hover:bg-violet-500/20 disabled:opacity-50"
                         >
@@ -189,15 +182,6 @@ export default function FileCard({ file, onDeleted, onShare, onAdvShare, variant
                     </div>
                 </div>
             )}
-
-            <DownloadPinModal
-                isOpen={showPinModal}
-                onClose={() => setShowPinModal(false)}
-                onConfirm={handleDownload}
-                fileName={file.original_filename}
-                isDownloading={isDownloading}
-                error={pinError}
-            />
         </>
     );
 }

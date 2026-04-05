@@ -245,8 +245,9 @@ export const getSecurityInfo = asyncHandler(async (req, res) => {
         success: true,
         data: {
             mfa_enabled: user.mfa_enabled,
-            email_otp_enabled: true, // Assuming always on for this system
-            last_password_change: user.updated_at // mock if not tracked specifically
+            is_pin_set: !!user.security_pin_hash,
+            email_otp_enabled: true, 
+            last_password_change: user.updated_at
         }
     });
 });

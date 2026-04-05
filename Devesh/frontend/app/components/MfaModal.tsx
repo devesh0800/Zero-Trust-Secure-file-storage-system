@@ -77,8 +77,8 @@ export default function MfaModal({ isOpen, onClose }: MfaModalProps) {
                             </svg>
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-white">2-Factor Auth</h2>
-                            <p className="text-xs text-zinc-500">Secure your vault with MFA</p>
+                            <h2 className="text-xl font-bold text-white">Extra Security</h2>
+                            <p className="text-xs text-zinc-500">Protect your account with extra safety</p>
                         </div>
                     </div>
                     <button onClick={onClose} className="rounded-lg p-1 text-zinc-400 hover:bg-white/5 hover:text-white">
@@ -93,24 +93,24 @@ export default function MfaModal({ isOpen, onClose }: MfaModalProps) {
                                 <svg className={`h-8 w-8 ${user?.mfa_enabled ? 'text-emerald-400' : 'text-violet-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
                             </div>
                             <div>
-                                <p className="text-lg font-medium text-white">MFA is {user?.mfa_enabled ? 'Enabled' : 'Disabled'}</p>
-                                <p className="mt-2 text-sm text-zinc-400">Add an extra layer of security using your authenticator app.</p>
+                                <p className="text-lg font-medium text-white">Security is {user?.mfa_enabled ? 'ON' : 'OFF'}</p>
+                                <p className="mt-2 text-sm text-zinc-400">Add an extra layer of protection using your security app.</p>
                             </div>
                             {user?.mfa_enabled ? (
                                 <form onSubmit={handleDisableMFA} className="space-y-4 pt-2">
                                     <input type="text" value={token} onChange={e => setToken(e.target.value)} placeholder="000000" className="w-full rounded-xl border border-white/10 bg-white/5 py-3 text-center text-lg tracking-widest text-white outline-none focus:border-violet-500/50" maxLength={6} required />
                                     {error && <p className="text-xs text-red-400">{error}</p>}
-                                    <button type="submit" disabled={isLoading} className="w-full rounded-xl bg-red-600 py-3 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50">{isLoading ? 'Disabling...' : 'Disable MFA'}</button>
+                                    <button type="submit" disabled={isLoading} className="w-full rounded-xl bg-red-600 py-3 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50">{isLoading ? 'Turning off...' : 'Turn Off Security'}</button>
                                 </form>
                             ) : (
-                                <button onClick={handleStartSetup} disabled={isLoading} className="w-full rounded-xl bg-violet-600 py-3 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-50">{isLoading ? 'Loading...' : 'Enable MFA'}</button>
+                                <button onClick={handleStartSetup} disabled={isLoading} className="w-full rounded-xl bg-violet-600 py-3 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-50">{isLoading ? 'Loading...' : 'Turn On Security'}</button>
                             )}
                         </div>
                     )}
 
                     {mfaStep === 'setup' && setupData && (
                         <div className="space-y-5">
-                            <p className="text-sm text-zinc-400 text-center">Scan with your authenticator app</p>
+                            <p className="text-sm text-zinc-400 text-center">Scan with your security app</p>
                             <div className="flex justify-center rounded-2xl bg-white p-4">
                                 <img src={setupData.qrCodeUrl} alt="QR Code" className="h-[180px] w-[180px]" />
                             </div>
@@ -121,7 +121,7 @@ export default function MfaModal({ isOpen, onClose }: MfaModalProps) {
                             <form onSubmit={handleEnableMFA} className="space-y-4">
                                 <input type="text" value={token} onChange={e => setToken(e.target.value)} placeholder="000000" className="w-full rounded-xl border border-white/10 bg-white/5 py-3 text-center text-lg tracking-widest text-white outline-none focus:border-violet-500/50" maxLength={6} required />
                                 {error && <p className="text-xs text-red-400">{error}</p>}
-                                <button type="submit" disabled={isLoading} className="w-full rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50">{isLoading ? 'Verifying...' : 'Complete Setup'}</button>
+                                <button type="submit" disabled={isLoading} className="w-full rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50">{isLoading ? 'Verifying...' : 'Enable Now'}</button>
                             </form>
                         </div>
                     )}
@@ -129,7 +129,7 @@ export default function MfaModal({ isOpen, onClose }: MfaModalProps) {
                     {mfaStep === 'verify' && backupCodes.length > 0 && (
                         <div className="space-y-5 text-center">
                             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400"><svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg></div>
-                            <h3 className="text-lg font-bold text-white">MFA Enabled!</h3>
+                            <h3 className="text-lg font-bold text-white">Security ON!</h3>
                             <p className="text-sm text-zinc-400">Save these backup codes securely.</p>
                             <div className="grid grid-cols-2 gap-2 rounded-xl border border-white/5 bg-white/5 p-4 text-left">
                                 {backupCodes.map((code, i) => <div key={i} className="font-mono text-sm text-zinc-300">{code}</div>)}

@@ -375,6 +375,7 @@ export interface Session {
     user_agent: string;
     created_at: string;
     expires_at: string;
+    is_current: boolean;
 }
 
 export async function getSessions(): Promise<Session[]> {

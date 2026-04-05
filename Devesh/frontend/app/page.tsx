@@ -62,15 +62,15 @@ export default function Home() {
           Secure<span className="text-shimmer">Vault</span>
         </h1>
         <p className="stagger-3 mx-auto mt-5 max-w-lg text-base text-zinc-500 leading-relaxed sm:text-lg">
-          Zero-trust encrypted file storage. Your files are protected with military-grade <span className="text-zinc-400 font-medium">AES-256-GCM</span> encryption.
+          Secure and private file storage. Your files are protected with <span className="text-zinc-400 font-medium text-shimmer">military-grade security</span> and complete privacy.
         </p>
 
         {/* Features */}
         <div className="stagger-4 mt-10 flex flex-wrap items-center justify-center gap-3">
           {[
-            { icon: '🔐', label: 'AES-256 Encrypted' },
-            { icon: '🛡️', label: 'Zero-Trust Architecture' },
-            { icon: '🔑', label: 'Per-File Encryption' },
+            { icon: '🔐', label: 'Highly Secure' },
+            { icon: '🛡️', label: 'Private Storage' },
+            { icon: '🔑', label: 'Individual Protection' },
           ].map((feature) => (
             <div key={feature.label} className="group flex items-center gap-2.5 rounded-full border border-white/[0.06] bg-white/[0.02] px-5 py-2 backdrop-blur-sm transition-all duration-300 hover:border-violet-500/20 hover:bg-violet-500/5 hover:shadow-[0_0_15px_rgba(139,92,246,0.1)]">
               <span className="text-sm">{feature.icon}</span>
