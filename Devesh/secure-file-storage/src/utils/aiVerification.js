@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { AuditLog, KnownDevice } from '../models/index.js';
+import { User, AuditLog, KnownDevice } from '../models/index.js';
 import { logSecurityEvent } from './logger.js';
 import crypto from 'crypto';
 

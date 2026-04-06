@@ -44,12 +44,12 @@ export async function sendOtp(userIdentifier, purpose) {
     // Find and invalidate any existing unused OTPs for this path
     await OtpVerification.update(
         { is_used: true },
-        { 
-            where: { 
-                user_identifier: userIdentifier, 
+        {
+            where: {
+                user_identifier: userIdentifier,
                 purpose: purpose,
-                is_used: false 
-            } 
+                is_used: false
+            }
         }
     );
 

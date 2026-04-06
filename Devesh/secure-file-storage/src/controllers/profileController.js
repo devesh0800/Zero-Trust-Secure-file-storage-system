@@ -1,15 +1,16 @@
-import { User, File, AuditLog } from '../models/index.js';
+import { User, File, AuditLog, SharedFile, RefreshToken, Notification, ActionToken, KnownDevice, Connection, OtpVerification } from '../models/index.js';
 import otpService from '../services/otpService.js';
 import { asyncHandler, AppError } from '../middlewares/errorHandler.js';
 import speakeasy from 'speakeasy';
 import { logSecurityEvent } from '../utils/logger.js';
+import { Op } from 'sequelize';
 
 /**
  * Get the current user's profile
  */
 export const getProfile = asyncHandler(async (req, res) => {
     const user = await User.findByPk(req.user.id);
-    
+
     if (!user) {
         throw new AppError('User not found', 404);
     }
@@ -84,7 +85,7 @@ export const updatePhone = asyncHandler(async (req, res) => {
     // If user already has a phone, they must verify it first
     if (user.phone_number) {
         if (!otp_code) {
-             throw new AppError('OTP from current phone number is required', 400);
+            throw new AppError('OTP from current phone number is required', 400);
         }
         await otpService.verifyOtp(user.phone_number, 'update_phone', otp_code);
     }
@@ -104,7 +105,7 @@ export const updatePhone = asyncHandler(async (req, res) => {
  */
 export const changePassword = asyncHandler(async (req, res) => {
     const { current_password, new_password } = req.body;
-    
+
     // Explicitly fetch user with password_hash included
     const user = await User.findByPk(req.user.id);
 
@@ -147,7 +148,7 @@ export const changePassword = asyncHandler(async (req, res) => {
  */
 export const getStorageStats = asyncHandler(async (req, res) => {
     const userId = req.user.id;
-    
+
     // Get all files
     const files = await File.findAll({
         where: { user_id: userId, is_deleted: false },
@@ -162,7 +163,7 @@ export const getStorageStats = asyncHandler(async (req, res) => {
         totalSize += file.file_size;
         const mime = (file.mime_type || '').toLowerCase();
         const ext = (file.file_extension || '').toLowerCase();
-        
+
         if (mime.startsWith('image/')) {
             breakdown.images += file.file_size;
         } else if (['pdf', 'doc', 'docx', 'txt', 'rtf', 'odt'].includes(ext) || mime.includes('word') || mime.includes('pdf')) {
@@ -185,7 +186,7 @@ export const getStorageStats = asyncHandler(async (req, res) => {
         }));
 
     const limit = 5 * 1024 * 1024 * 1024; // 5GB limit
-    
+
     res.status(200).json({
         success: true,
         data: {
@@ -208,9 +209,9 @@ export const getActivityLog = asyncHandler(async (req, res) => {
 
     // Login history (last 10)
     const loginHistory = await AuditLog.findAll({
-        where: { 
-            user_id: userId, 
-            event_type: ['login_success', 'login_failed'] 
+        where: {
+            user_id: userId,
+            event_type: ['login_success', 'login_failed']
         },
         order: [['created_at', 'DESC']],
         limit: 10
@@ -218,9 +219,9 @@ export const getActivityLog = asyncHandler(async (req, res) => {
 
     // File activity (last 15)
     const fileActivity = await AuditLog.findAll({
-        where: { 
-            user_id: userId, 
-            event_type: ['file_uploaded', 'file_downloaded', 'file_deleted'] 
+        where: {
+            user_id: userId,
+            event_type: ['file_uploaded', 'file_downloaded', 'file_deleted']
         },
         order: [['created_at', 'DESC']],
         limit: 15
@@ -240,13 +241,13 @@ export const getActivityLog = asyncHandler(async (req, res) => {
  */
 export const getSecurityInfo = asyncHandler(async (req, res) => {
     const user = await User.findByPk(req.user.id);
-    
+
     res.status(200).json({
         success: true,
         data: {
             mfa_enabled: user.mfa_enabled,
             is_pin_set: !!user.security_pin_hash,
-            email_otp_enabled: true, 
+            email_otp_enabled: true,
             last_password_change: user.updated_at
         }
     });
@@ -353,13 +354,11 @@ export const downloadLogArchive = asyncHandler(async (req, res) => {
  */
 export const deleteEverything = asyncHandler(async (req, res) => {
     const userId = req.user.id;
-    const { Op } = await import('sequelize');
 
     // Delete all user files
     await File.destroy({ where: { user_id: userId } });
 
     // Delete shared files  
-    const { SharedFile, RefreshToken, Notification, ActionToken, KnownDevice } = await import('../models/index.js');
     await SharedFile.destroy({ where: { [Op.or]: [{ owner_id: userId }, { shared_with_id: userId }] } });
 
     // Delete all sessions
@@ -391,13 +390,10 @@ export const deleteEverything = asyncHandler(async (req, res) => {
 export const deleteAccount = asyncHandler(async (req, res) => {
     const userId = req.user.id;
     const user = await User.findByPk(userId);
-    const { Op } = await import('sequelize');
 
     if (!user) throw new AppError('User not found', 404);
 
     // Delete all related data
-    const { SharedFile, RefreshToken, Notification, ActionToken, KnownDevice, Connection, OtpVerification } = await import('../models/index.js');
-    
     await File.destroy({ where: { user_id: userId } });
     await SharedFile.destroy({ where: { [Op.or]: [{ owner_id: userId }, { shared_with_id: userId }] } });
     await RefreshToken.destroy({ where: { user_id: userId } });

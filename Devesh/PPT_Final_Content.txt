@@ -1,0 +1,118 @@
+========================================================================
+             SECUREVAULT: ZERO-TRUST FILE STORAGE SYSTEM
+========================================================================
+
+SLIDE 1: PROJECT OVERVIEW (Mission and Focus)
+-------------------------
+- MISSION: To architect a high-security digital fortress designed for ultra-sensitive personal and corporate file storage.
+- CURRENT PROBLEM: Traditional cloud storage providers often have administrative access to user data, leading to massive privacy risks.
+- THE SOLUTION: SecureVault uses a "Zero-Knowledge" architecture where the server never stores or sees the plain-text data of the users.
+- SYSTEM DESIGN: Built on a modern full-stack architecture using Node.js, Express, and a React-based Next.js frontend with SSR (Server Side Rendering).
+- CORE SECURITY PILLAR: Implementation of the "Zero-Trust" security model where every request is authenticated and verified as a fresh interaction.
+- USER EMPOWERMENT: We aim to return complete data sovereignty to the end-user, ensuring their digital assets stay personal and private forever.
+
+
+SLIDE 2: SPECIFIC OBJECTIVES (Technical & Operational Goals)
+----------------------------
+- E2EE IMPLEMENTATION: To develop a seamless End-to-End Encryption (E2EE) engine that processes data without any leakage during transit.
+- AES-256-GCM STANDARD: To integrate the military-grade AES-256-GCM encryption standard, providing both data confidentiality and authenticity.
+- MULTI-FACTOR AUTHENTICATION (MFA): To build a secondary security layer requiring a unique 6-digit dynamic PIN before accessing the vault.
+- GRANULAR ACCESS CONTROL: To enable a robust file-sharing mechanism where permissions can be granted, timed, or revoked instantly by the owner.
+- AUTOMATED INACTIVITY sentinel: To design a proof-of-presence monitoring system that secures the session if the user leaves their device unattended.
+- AUDITABLE ACTIVITY LOGS: To maintain a cryptographically signed activity log for tracking every sensitive action taken within the application ecosystem.
+
+
+SLIDE 3: KEY FEATURES (What Makes Us Unique)
+-------------------------
+- MILITARY-GRADE CRYPTOGRAPHY: Every file is encrypted with a unique derived key, making "Mass Decryption" impossible even if the server is compromised.
+- INACTIVITY GUARD & SENTINEL: A dynamic foreground listener that monitors user activity and enforces an auto-lock or logout for high-security environments.
+- PREMIUM GLASSMORPHIC DASHBOARD: A state-of-the-art UI that combines aesthetics with utility, showing live security metrics and storage health.
+- SECURE SHARING GATEWAY: Users can generate "Encrypted Share Links" which are protected by separate passcodes and have optional expiry dates.
+- REAL-TIME INTRUSION DETECTION: Built-in server middleware that detects and mitigates SQL Injection, XSS, and Brute-force attacks in milliseconds.
+- ACCOUNT LOCKDOWN PROTOCOL: Automatically locks an account after 3 failed login attempts, requiring an administrative or email-based unlock process.
+
+
+SLIDE 4: PROGRESS SUMMARY (Development Milestones)
+-------------------------
+- PHASE 1 - INFRASTRUCTURE: Completed the core database setup using SQLite and Sequelize ORM, ensuring ACID compliance and data reliability.
+- PHASE 2 - AUTHENTICATION SUITE: Successfully implemented the JWT (JSON Web Token) authentication flow including secure Refresh Token rotation.
+- PHASE 3 - UPLOAD & CRYPTO ENGINE: Developed and verified the file-streaming encryption module that handles multi-megabyte files with zero memory leaks.
+- PHASE 4 - FRONTEND INTEGRATION: Finished the responsive dashboard, file management interface, and the security configuration panels in Next.js.
+- CURRENT STATUS: We are currently in the "Final Hardening Phase," performing deep security audits and optimizing the cryptographic key derivation speed.
+- PERCENTAGE COMPLETION: Core Backend (98%), Frontend UI (95%), Security Engine (100%), System Integration (90%).
+
+
+SLIDE 5: DETAILED PROGRESS - DEVELOPMENT PHASE
+-------------------------
+- SECURITY HEADERS & CORS: Integrated 'Helmet.js' to prevent clickjacking and 'CORS' policies to restrict API access to only authorized frontend domains.
+- MEMORY-EFFICIENT STREAMING: Implemented 'Multer' and 'Node Streams' to encrypt files "on-the-fly" without overloading the server's RAM.
+- MFA & EMAIL SERVICE: Integrated a robust SMTP-based verification system for 2FA and sensitive account recovery actions (Forget Password/Reset).
+- RATE LIMITING & THROTTLING: Configured 'express-rate-limit' to prevent denial-of-service (DoS) attacks on critical authentication routes.
+- WINSTON LOGGER STRATEGY: Developed a centralized logging system that saves audit logs in both text and JSON formats for future forensic analysis.
+
+
+SLIDE 6: METHODOLOGY (How We Built This)
+-------------------------
+- SECURE-SDLC APPROACH: Followed the Software Development Life Cycle with a continuous focus on security at every stage (Planning to Deployment).
+- AGILE DEVELOPMENT: Used bi-weekly development sprints to ensure that every feature was built, rigorously tested, and integrated without regressions.
+- THREAT MODELING: Conducted virtual "Stress Tests" to identify how the system would behave under different attack vectors (e.g., Man-in-the-middle).
+- MODULE-DRIVEN ARCHITECTURE: Separated the encryption logic from the business logic to ensure that security modules can be updated independently.
+- CODE QUALITY ASSURANCE: Utilized ESLint for code standard enforcement and manual code reviews to ensure zero hard-coded secrets or vulnerabilities.
+
+
+SLIDE 7 & 8: PROTOTYPE / PROJECT FLOW / ARCHITECTURE
+-------------------------
+- ARCHITECTURE DESIGN: Followed a Clean Layered Architecture (Presentation Layer, Business Layer, Data Layer, and Security Layer).
+- FRONTEND STACK: Next.js with React 19 for SEO-optimized, fast-loading, and interactive user interfaces using Tailwind CSS for styling.
+- BACKEND STACK: Node.js with Express.js providing a robust and asynchronous runtime for handling multiple concurrent file transfers.
+- DATABASE ENGINE: SQLite for its portability, zero-configuration requirement, and reliability in handling structured metadata for millions of files.
+- ENCRYPTION FLOW:
+    1. User selects a file for upload.
+    2. System generates a random 256-bit AES key.
+    3. File is encrypted in chunks using GCM mode.
+    4. Encrypted data is sent to the server.
+    5. Unique key is encrypted with User's Master Key and stored in DB.
+
+
+SLIDE 9: PROJECT TIMELINE (Roadmap)
+-------------------------
+- MONTH 1 (PLANNING): Requirement gathering, System Architecture design, and selecting the Cryptographic library stack.
+- MONTH 2 (BACKEND CORE): Building the Express server, setting up SQLite models, and developing the JWT-based Auth system.
+- MONTH 3 (CRYPTO & FRONTEND): Writing the AES-256 logic, building the Next.js Dashboard, and integrating the file upload functionality.
+- MONTH 4 (SECURITY & TESTING): Implementing MFA, adding Rate Limiting, performing Penetration Testing, and preparing the project for final deployment.
+- NEXT STEPS: Scaling the project to handle terabytes of data and integrating specialized Hardware Security Modules (HSMs) for key storage.
+
+
+SLIDE 10: DATA & RESOURCES (The Tech Stack)
+-------------------------
+- DEVELOPMENT RUNTIME: Node.js (Latest LTS) for its non-blocking I/O and vast ecosystem of npm security packages.
+- DATABASE ORM: Sequelize for mapping JavaScript objects to SQLite tables with built-in validation and relationship management.
+- CRYPTOGRAPHIC LIBS: Built-in Node.js 'crypto' module for high-performance and audited encryption/decryption routines.
+- LOGGING & AUDIT: Winston Logger combined with Morgan middleware for comprehensive request and system-level logging.
+- UI COMPONENTS: Custom-crafted Vanilla CSS components and SVG icons for a sleek, lightweight, and professional user interface.
+
+
+SLIDE 11: PROJECT USECASES & SCOPE
+-------------------------
+- PERSONAL DIGITAL VAULT: For students and individuals to store their ID proofs, Certificates, and Tax documents with total privacy.
+- CORPORATE SENSITIVE DATA: Small businesses can use this to store proprietary trade secrets, contracts, and sensitive project blueprints.
+- HEALTHCARE PRIVACY: Storing patient records where even the slight chance of data leakage is unacceptable (EHR management).
+- LEGAL SECTOR: Safe repository for legal case files where maintaining chain-of-custody and confidentiality is mandatory.
+- FUTURE SCOPE: Transitioning to IPFS for decentralized storage and adding AI-driven "Anomalous Login Detection" to alert users of phishing.
+
+
+SLIDE 12: EXPECTED RESULTS & IMPACT
+-------------------------
+- ABSOLUTE DATA PRIVACY: Achieving a state where "What happens in the vault, stays in the vault" with zero third-party visibility.
+- ENHANCED USER TRUST: By open-sourcing the security logic, we build a platform that users can trust because they can verify it.
+- REDUCTION IN CYBER RISKS: Dramatically lowering the surface area for data breaches by using individual file keys and account lockouts.
+- HIGH PERFORMANCE: Despite heavy encryption, the system maintains ultra-fast response times through optimized stream handling.
+- SOCIAL IMPACT: Providing enterprise-level security to the common user for free, bridging the gap between high-end corporate tools and public storage.
+
+
+SLIDE 13: CONCLUSION & Q&A
+-------------------------
+- KEY TAKEAWAY: SecureVault is not just a storage tool; it is a movement towards a more private and secure digital future.
+- SUMMARY: We have successfully combined Zero-Trust principles with a premium UI to deliver a production-grade secure environment.
+- INVITATION: We invite the panel of experts to ask questions regarding encryption complexities, MFA logic, or system architecture.
+- THANK YOU: Special thanks to our mentors and K.R. Mangalam University for providing the resources to build this system.

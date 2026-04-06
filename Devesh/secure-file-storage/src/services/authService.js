@@ -1,4 +1,4 @@
-import { User, AuditLog, KnownDevice, ActionToken } from '../models/index.js';
+import { User, AuditLog, KnownDevice, ActionToken, RefreshToken } from '../models/index.js';
 import crypto from 'crypto';
 import { generateTokenPair, verifyRefreshToken, validateRefreshToken, revokeRefreshToken, revokeAllUserTokens } from '../utils/jwt.js';
 import { AppError } from '../middlewares/errorHandler.js';
@@ -9,6 +9,7 @@ import notificationService from './notificationService.js';
 import emailService from './emailService.js';
 import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
+import { Op } from 'sequelize';
 
 /**
  * Authentication Service
@@ -70,7 +71,6 @@ export async function loginUser(credentials, ipAddress, userAgent) {
     const { identifier, password } = credentials;
 
     // Find user by either email or username using Sequelize Op.or
-    const { Op } = await import('sequelize');
     const user = await User.findOne({
         where: {
             [Op.or]: [
@@ -496,8 +496,6 @@ export async function logoutAllDevices(userId, ipAddress, userAgent) {
  * Get active sessions for a user
  */
 export async function getActiveSessions(userId) {
-    const { default: RefreshToken } = await import('../models/RefreshToken.js');
-    const { Op } = await import('sequelize');
 
     const tokens = await RefreshToken.findAll({
         where: {
@@ -522,7 +520,6 @@ export async function getActiveSessions(userId) {
  * Revoke a specific session by its refresh token ID
  */
 export async function revokeSessionById(userId, sessionId, ipAddress, userAgent) {
-    const { default: RefreshToken } = await import('../models/RefreshToken.js');
 
     const token = await RefreshToken.findOne({
         where: { id: sessionId, user_id: userId, is_revoked: false }
