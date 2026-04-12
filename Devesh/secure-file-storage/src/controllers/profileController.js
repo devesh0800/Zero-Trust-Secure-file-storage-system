@@ -48,7 +48,7 @@ export const updateProfile = asyncHandler(async (req, res) => {
 });
 
 /**
- * Update profile picture (Avatar) — Cloudinary Cloud Upload
+ * Update profile picture (Avatar) — Cloudinary Cloud Upload (via HTTP API)
  */
 export const updateAvatar = asyncHandler(async (req, res) => {
     if (!req.file) {
@@ -59,35 +59,53 @@ export const updateAvatar = asyncHandler(async (req, res) => {
 
     // Check if Cloudinary is configured
     if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
-        const { v2: cloudinary } = await import('cloudinary');
-        
-        cloudinary.config({
-            cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-            api_key: process.env.CLOUDINARY_API_KEY,
-            api_secret: process.env.CLOUDINARY_API_SECRET
+        const crypto = await import('crypto');
+        const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+        const apiKey = process.env.CLOUDINARY_API_KEY;
+        const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+        const timestamp = Math.floor(Date.now() / 1000);
+        const publicId = `securevault/avatars/user_${user.id}`;
+        const transformation = 'c_fill,g_face,h_400,w_400';
+
+        // Generate signature for authenticated upload
+        const signatureStr = `overwrite=true&public_id=${publicId}&timestamp=${timestamp}&transformation=${transformation}${apiSecret}`;
+        const signature = crypto.default.createHash('sha1').update(signatureStr).digest('hex');
+
+        // Build multipart form data
+        const boundary = '----CloudinaryBoundary' + Date.now();
+        const fileBase64 = req.file.buffer.toString('base64');
+        const dataUri = `data:${req.file.mimetype};base64,${fileBase64}`;
+
+        const bodyParts = [
+            `--${boundary}\r\nContent-Disposition: form-data; name="file"\r\n\r\n${dataUri}\r\n`,
+            `--${boundary}\r\nContent-Disposition: form-data; name="api_key"\r\n\r\n${apiKey}\r\n`,
+            `--${boundary}\r\nContent-Disposition: form-data; name="timestamp"\r\n\r\n${timestamp}\r\n`,
+            `--${boundary}\r\nContent-Disposition: form-data; name="signature"\r\n\r\n${signature}\r\n`,
+            `--${boundary}\r\nContent-Disposition: form-data; name="public_id"\r\n\r\n${publicId}\r\n`,
+            `--${boundary}\r\nContent-Disposition: form-data; name="overwrite"\r\n\r\ntrue\r\n`,
+            `--${boundary}\r\nContent-Disposition: form-data; name="transformation"\r\n\r\n${transformation}\r\n`,
+            `--${boundary}--\r\n`
+        ];
+
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+            method: 'POST',
+            headers: { 'Content-Type': `multipart/form-data; boundary=${boundary}` },
+            body: bodyParts.join('')
         });
 
-        // Upload to Cloudinary from buffer
-        const result = await new Promise((resolve, reject) => {
-            const stream = cloudinary.uploader.upload_stream(
-                {
-                    folder: 'securevault/avatars',
-                    public_id: `user_${user.id}`,
-                    overwrite: true,
-                    transformation: [{ width: 400, height: 400, crop: 'fill', gravity: 'face' }]
-                },
-                (error, result) => {
-                    if (error) reject(error);
-                    else resolve(result);
-                }
-            );
-            stream.end(req.file.buffer);
-        });
+        const result = await response.json();
+
+        if (!response.ok) {
+            console.error('Cloudinary upload failed:', result);
+            throw new AppError('Failed to upload image to cloud storage', 500);
+        }
 
         user.profile_pic = result.secure_url;
+        console.log(`☁️ Avatar uploaded to Cloudinary: ${result.secure_url}`);
     } else {
         // Fallback to local storage (dev only)
-        const avatarPath = `/uploads/avatars/${req.file.filename}`;
+        const avatarPath = `/uploads/avatars/${req.file.filename || 'avatar-' + Date.now() + '.jpg'}`;
         user.profile_pic = avatarPath;
     }
 
