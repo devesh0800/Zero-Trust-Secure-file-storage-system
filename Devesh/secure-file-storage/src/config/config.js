@@ -114,8 +114,8 @@ export function validateConfig() {
     { key: 'COOKIE_SECRET', value: config.cookie.secret, minLength: 32 }
   ];
 
-  // Only require DB_PASSWORD for non-SQLite databases
-  if (config.database.dialect !== 'sqlite') {
+  // Only require individual DB credentials if DATABASE_URL is NOT present
+  if (config.database.dialect !== 'sqlite' && !process.env.DATABASE_URL) {
     required.push({ key: 'DB_PASSWORD', value: config.database.password, minLength: 8 });
   }
 
@@ -139,7 +139,7 @@ export function validateConfig() {
   }
 
   // Validate master encryption key is hex
-  if (!/^[0-9a-fA-F]{64}$/.test(config.encryption.masterKey)) {
+  if (config.encryption.masterKey && !/^[0-9a-fA-F]{64}$/.test(config.encryption.masterKey)) {
     throw new Error('MASTER_ENCRYPTION_KEY must be a 64-character hexadecimal string');
   }
 

@@ -23,14 +23,16 @@ if (config.database.dialect === 'sqlite') {
     dbOptions.pool = config.database.pool;
 }
 
-const sequelize = config.database.dialect === 'sqlite'
-    ? new Sequelize({ ...dbOptions })
-    : new Sequelize(
-        config.database.name,
-        config.database.user,
-        config.database.password,
-        dbOptions
-    );
+const sequelize = process.env.DATABASE_URL
+    ? new Sequelize(process.env.DATABASE_URL, dbOptions)
+    : (config.database.dialect === 'sqlite'
+        ? new Sequelize({ ...dbOptions })
+        : new Sequelize(
+            config.database.name,
+            config.database.user,
+            config.database.password,
+            dbOptions
+        ));
 
 /**
  * Test database connection
