@@ -66,23 +66,23 @@ export async function sendOtp(userIdentifier, purpose) {
 
     logSecurityEvent(`otp_generated_${purpose}`, { identifier: userIdentifier });
 
-    // Send real email using our new modular emailService
-    try {
-        await emailService.sendMail({
-            to: userIdentifier.includes('@') ? userIdentifier : 'test@example.com',
-            subject: `Your OTP Code for ${purpose.replace('_', ' ').toUpperCase()}`,
-            text: `Your Verification Code is: ${code}\nThis code expires in ${OTP_EXPIRY[purpose] / 60000} minutes.`,
-            html: `<div style="font-family: Arial; padding: 20px;">
-                    <h2>Secure Vault Verification</h2>
-                    <p>Your one-time code for <b>${purpose.replace('_', ' ')}</b> is:</p>
-                    <h1 style="color: #4f46e5; letter-spacing: 5px;">${code}</h1>
-                    <p>This code will expire in ${OTP_EXPIRY[purpose] / 60000} minutes.</p>
-                   </div>`
-        });
-    } catch (emailError) {
-        console.error('⚠️ Email sending failed (OTP still valid):', emailError.message);
-        console.log(`📧 OTP Code for ${userIdentifier}: ${code} (email delivery failed, use this code manually)`);
-    }
+    // Send real email in background (truly non-blocking)
+    emailService.sendMail({
+        to: userIdentifier.includes('@') ? userIdentifier : 'test@example.com',
+        subject: `Your OTP Code for ${purpose.replace('_', ' ').toUpperCase()}`,
+        text: `Your Verification Code is: ${code}\nThis code expires in ${OTP_EXPIRY[purpose] / 60000} minutes.`,
+        html: `<div style="font-family: Arial; padding: 20px;">
+                <h2>Secure Vault Verification</h2>
+                <p>Your one-time code for <b>${purpose.replace('_', ' ')}</b> is:</p>
+                <h1 style="color: #4f46e5; letter-spacing: 5px;">${code}</h1>
+                <p>This code will expire in ${OTP_EXPIRY[purpose] / 60000} minutes.</p>
+               </div>`
+    }).catch(emailError => {
+        console.error('⚠️ Background Email failed:', emailError.message);
+    });
+
+    // Always log OTP to console in production as a backup for the user
+    console.log(`\n[BACKUP] OTP for ${userIdentifier}: ${code}\n`);
 
     return {
         success: true,
