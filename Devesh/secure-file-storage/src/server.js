@@ -48,8 +48,8 @@ async function initializeApp() {
         await testConnection();
 
         // Synchronize database models
-        // Using force: true temporarily to ensure clean schema creation on new Neon DB
-        await syncDatabase({ force: true, alter: false });
+        // Database schema is initialized. Reverting to safe sync to preserve user data.
+        await syncDatabase({ force: false, alter: false });
 
         console.log('✓ Application initialized successfully\n');
     } catch (error) {
