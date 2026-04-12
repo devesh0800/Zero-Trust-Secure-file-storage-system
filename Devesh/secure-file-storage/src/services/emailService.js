@@ -1,53 +1,56 @@
 /**
- * Email Service — Resend HTTP API
- * Uses Resend's REST API instead of SMTP to bypass Render's blocked outbound SMTP ports.
- * Free tier: 100 emails/day, 3000/month
+ * Email Service — Brevo (Sendinblue) HTTP API
+ * Uses Brevo's REST API instead of SMTP to bypass Render's blocked outbound SMTP ports.
+ * Free tier: 300 emails/day — no domain verification needed!
  */
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const FROM_ADDRESS = process.env.EMAIL_FROM || 'SecureVault <onboarding@resend.dev>';
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
+const SENDER_EMAIL = process.env.SMTP_USER || 'zerotrustsecurefilestorage@gmail.com';
+const SENDER_NAME = 'SecureVault';
 
 /**
- * Send an email using Resend HTTP API
+ * Send an email using Brevo HTTP API
  */
 export async function sendMail({ to, subject, text, html }) {
-    if (!RESEND_API_KEY) {
-        console.error('\n❌ RESEND_API_KEY is not set in environment variables!');
+    if (!BREVO_API_KEY) {
+        console.error('\n❌ BREVO_API_KEY is not set in environment variables!');
         console.error('   Emails will NOT be delivered.\n');
-        throw new Error('Email service not configured: RESEND_API_KEY missing');
+        throw new Error('Email service not configured: BREVO_API_KEY missing');
     }
 
     try {
-        const response = await fetch('https://api.resend.com/emails', {
+        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${RESEND_API_KEY}`,
-                'Content-Type': 'application/json'
+                'api-key': BREVO_API_KEY,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             },
             body: JSON.stringify({
-                from: FROM_ADDRESS,
-                to: [to],
+                sender: { name: SENDER_NAME, email: SENDER_EMAIL },
+                to: [{ email: to }],
                 subject,
-                text,
-                html
+                textContent: text,
+                htmlContent: html
             })
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-            console.error('\n❌ RESEND EMAIL FAILED:');
+            console.error('\n❌ BREVO EMAIL FAILED:');
             console.error(`   To: ${to}`);
             console.error(`   Status: ${response.status}`);
             console.error(`   Error: ${JSON.stringify(data)}\n`);
-            throw new Error(data.message || 'Resend API error');
+            throw new Error(data.message || 'Brevo API error');
         }
 
         console.log('\n=============================================');
-        console.log(`📧 EMAIL DELIVERED SUCCESSFULLY (Resend)`);
+        console.log(`📧 EMAIL DELIVERED SUCCESSFULLY (Brevo)`);
+        console.log(`   From: ${SENDER_EMAIL}`);
         console.log(`   To: ${to}`);
         console.log(`   Subject: ${subject}`);
-        console.log(`   ID: ${data.id}`);
+        console.log(`   MessageId: ${data.messageId}`);
         console.log('=============================================\n');
 
         return data;
@@ -61,7 +64,6 @@ export async function sendMail({ to, subject, text, html }) {
 
 // Keep backward-compatible export
 export async function getTransporter() {
-    // No longer needed with Resend, but kept for compatibility
     return null;
 }
 
