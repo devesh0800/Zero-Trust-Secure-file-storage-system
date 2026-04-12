@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/lib/auth-context';
+import * as api from '@/lib/api';
 import { getSessions, logoutAll, logout as apiLogout } from '@/lib/api';
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
@@ -132,7 +133,13 @@ export default function Navbar() {
                             >
                                 <div className="relative">
                                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 border border-white/10 shadow-lg">
-                                        <img src={user?.profile_pic || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + user?.username} alt={user?.username} className="h-full w-full rounded-full object-cover p-1" />
+                                        <img 
+                                            src={user?.profile_pic 
+                                                ? (user.profile_pic.startsWith('http') ? user.profile_pic : `${api.RAW_API_URL}${user.profile_pic}`)
+                                                : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + user?.username} 
+                                            alt={user?.username} 
+                                            className="h-full w-full rounded-full object-cover p-1" 
+                                        />
                                     </div>
                                     <div className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-[#0c0c14] bg-emerald-500 animate-pulse" />
                                 </div>
@@ -151,7 +158,13 @@ export default function Navbar() {
                                     <div className="p-4 pb-3">
                                         <div className="flex items-center gap-3.5">
                                             <div className="h-12 w-12 flex-shrink-0 rounded-xl overflow-hidden border border-white/[0.06] bg-white/[0.02]">
-                                                <img src={user?.profile_pic || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username}`} className="h-full w-full object-cover" alt="U" />
+                                                <img 
+                                                    src={user?.profile_pic 
+                                                        ? (user.profile_pic.startsWith('http') ? user.profile_pic : `${api.RAW_API_URL}${user.profile_pic}`)
+                                                        : `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username}`} 
+                                                    className="h-full w-full object-cover" 
+                                                    alt="U" 
+                                                />
                                             </div>
                                             <div className="overflow-hidden">
                                                 <h3 className="truncate text-xs font-black text-white uppercase tracking-wide">{user?.username}</h3>

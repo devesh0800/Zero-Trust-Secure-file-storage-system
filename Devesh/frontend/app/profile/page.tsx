@@ -319,7 +319,11 @@ function ProfileContent() {
                             <div className="group relative cursor-pointer" onClick={() => setIsAvatarModalOpen(true)}>
                                 <div className="flex h-28 w-28 items-center justify-center rounded-[1.75rem] bg-gradient-to-br from-zinc-800 to-zinc-900 border-2 border-white/[0.06] overflow-hidden text-3xl font-black text-white shadow-2xl transition-all duration-500 group-hover:scale-105 group-hover:border-blue-500/50 group-hover:shadow-blue-500/20">
                                     {user?.profile_pic ? (
-                                        <img src={user.profile_pic} alt="Profile" className="h-full w-full object-cover" />
+                                        <img 
+                                            src={user.profile_pic.startsWith('http') ? user.profile_pic : `${api.RAW_API_URL}${user.profile_pic}`} 
+                                            alt="Profile" 
+                                            className="h-full w-full object-cover" 
+                                        />
                                     ) : (
                                         user?.full_name?.[0] || user?.username?.[0] || 'U'
                                     )}

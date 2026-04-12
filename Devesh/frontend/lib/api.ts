@@ -1,4 +1,4 @@
-const RAW_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+export const RAW_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 const API_BASE = RAW_API_URL.endsWith('/api/v1') ? RAW_API_URL : `${RAW_API_URL.replace(/\/+$/, '')}/api/v1`;
 
 // Token management
