@@ -44,8 +44,11 @@ export const csrfValidator = (req, res, next) => {
         return next();
     }
 
-    // Bypass CSRF in development for automated testing scripts 
-    if (process.env.NODE_ENV === 'development') {
+    // In production with cross-origin deployment (different domains for frontend/backend),
+    // cookie-based CSRF doesn't work because browsers block third-party cookies.
+    // JWT Bearer tokens already protect against CSRF since they can't be auto-sent by browsers.
+    // CORS origin restriction provides additional protection.
+    if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'development') {
         return next();
     }
 
