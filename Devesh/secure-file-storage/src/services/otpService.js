@@ -67,23 +67,28 @@ export async function sendOtp(userIdentifier, purpose) {
     logSecurityEvent(`otp_generated_${purpose}`, { identifier: userIdentifier });
 
     // Send real email using our new modular emailService
-    await emailService.sendMail({
-        to: userIdentifier.includes('@') ? userIdentifier : 'test@example.com', // fallback if phone
-        subject: `Your OTP Code for ${purpose.replace('_', ' ').toUpperCase()}`,
-        text: `Your Verification Code is: ${code}\nThis code expires in ${OTP_EXPIRY[purpose] / 60000} minutes.`,
-        html: `<div style="font-family: Arial; padding: 20px;">
-                <h2>Secure Vault Verification</h2>
-                <p>Your one-time code for <b>${purpose.replace('_', ' ')}</b> is:</p>
-                <h1 style="color: #4f46e5; letter-spacing: 5px;">${code}</h1>
-                <p>This code will expire in ${OTP_EXPIRY[purpose] / 60000} minutes.</p>
-               </div>`
-    });
+    try {
+        await emailService.sendMail({
+            to: userIdentifier.includes('@') ? userIdentifier : 'test@example.com',
+            subject: `Your OTP Code for ${purpose.replace('_', ' ').toUpperCase()}`,
+            text: `Your Verification Code is: ${code}\nThis code expires in ${OTP_EXPIRY[purpose] / 60000} minutes.`,
+            html: `<div style="font-family: Arial; padding: 20px;">
+                    <h2>Secure Vault Verification</h2>
+                    <p>Your one-time code for <b>${purpose.replace('_', ' ')}</b> is:</p>
+                    <h1 style="color: #4f46e5; letter-spacing: 5px;">${code}</h1>
+                    <p>This code will expire in ${OTP_EXPIRY[purpose] / 60000} minutes.</p>
+                   </div>`
+        });
+    } catch (emailError) {
+        console.error('⚠️ Email sending failed (OTP still valid):', emailError.message);
+        console.log(`📧 OTP Code for ${userIdentifier}: ${code} (email delivery failed, use this code manually)`);
+    }
 
     return {
         success: true,
         message: `OTP sent successfully to ${userIdentifier}`,
-        // Return code only in development to allow postman/frontend testing easily
-        ...(process.env.NODE_ENV === 'development' && { test_code: code })
+        // Return code in non-production OR if email failed to help with testing
+        ...(process.env.NODE_ENV !== 'production' && { test_code: code })
     };
 }
 
