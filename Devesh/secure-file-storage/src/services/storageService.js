@@ -29,7 +29,15 @@ export async function upload(buffer, filename) {
     return data.path;
   } else {
     // Fallback to local storage (Default)
-    const storedPath = path.join(config.upload.uploadDir, filename);
+    const uploadDir = config.upload.uploadDir;
+    // Ensure directory exists
+    try {
+      await fs.access(uploadDir);
+    } catch {
+      await fs.mkdir(uploadDir, { recursive: true });
+    }
+    
+    const storedPath = path.join(uploadDir, filename);
     await fs.writeFile(storedPath, buffer);
     return storedPath;
   }
