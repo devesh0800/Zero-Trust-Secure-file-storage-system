@@ -23,10 +23,11 @@ export function csrfTokenSetter(req, res, next) {
     // If no CSRF cookie exists, generate one
     if (!req.cookies[CSRF_COOKIE_NAME]) {
         const token = crypto.randomBytes(32).toString('hex');
+        const isProduction = process.env.NODE_ENV === 'production';
         res.cookie(CSRF_COOKIE_NAME, token, {
             httpOnly: false,   // Must be readable by frontend JS
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            secure: isProduction,
+            sameSite: isProduction ? 'none' : 'strict',
             path: '/'
         });
     }
