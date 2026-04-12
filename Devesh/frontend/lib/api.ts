@@ -417,6 +417,17 @@ export async function getProfile() {
     return data.data.user;
 }
 
+export async function uploadAvatar(file: File) {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    const res = await request('/profile/avatar', {
+        method: 'POST',
+        body: formData,
+    });
+    const data = await res.json();
+    return data.data;
+}
+
 export async function updateProfileInfo(updates: any) {
     const res = await request('/profile', {
         method: 'PUT',

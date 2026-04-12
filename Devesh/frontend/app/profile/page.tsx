@@ -269,17 +269,23 @@ function ProfileContent() {
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        if (file.size > 2 * 1024 * 1024) { showMessage('error', 'Limit 2MB'); return; }
-        const reader = new FileReader();
-        reader.onloadend = async () => {
-            const base64String = reader.result as string;
-            try {
-                await api.updateProfileInfo({ profile_pic: base64String });
-                await refreshUser();
-                showMessage('success', 'Image sync complete.');
-            } catch (err) { showMessage('error', 'Sync failed.'); }
-        };
-        reader.readAsDataURL(file);
+        
+        // Size validation (2MB)
+        if (file.size > 2 * 1024 * 1024) { 
+            showMessage('error', 'Image size exceeds 2MB limit.'); 
+            return; 
+        }
+
+        setIsLoading(true);
+        try {
+            await api.uploadAvatar(file);
+            await refreshUser();
+            showMessage('success', 'Profile identity updated.');
+        } catch (err: any) { 
+            showMessage('error', err.message || 'Avatar sync failed.'); 
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleRemovePic = async () => {

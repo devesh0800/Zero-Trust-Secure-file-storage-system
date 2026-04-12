@@ -46,7 +46,11 @@ async function initializeApp() {
         validateConfig();
 
         // Ensure upload directories exist
-        const dirs = [config.upload.uploadDir, path.join(config.upload.uploadDir, 'temp')];
+        const dirs = [
+            config.upload.uploadDir, 
+            path.join(config.upload.uploadDir, 'temp'),
+            path.join(config.upload.uploadDir, 'avatars')
+        ];
         for (const dir of dirs) {
             try {
                 await fs.access(dir);

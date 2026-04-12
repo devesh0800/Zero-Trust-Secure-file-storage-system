@@ -48,6 +48,30 @@ export const updateProfile = asyncHandler(async (req, res) => {
 });
 
 /**
+ * Update profile picture (Avatar)
+ */
+export const updateAvatar = asyncHandler(async (req, res) => {
+    if (!req.file) {
+        throw new AppError('Please upload an image file', 400);
+    }
+
+    const user = await User.findByPk(req.user.id);
+    
+    // Store relative path in DB
+    const avatarPath = `/uploads/avatars/${req.file.filename}`;
+    user.profile_pic = avatarPath;
+    await user.save();
+
+    res.status(200).json({
+        success: true,
+        message: 'Profile picture updated successfully',
+        data: {
+            profile_pic: avatarPath
+        }
+    });
+});
+
+/**
  * Securely update email using OTP
  */
 export const updateEmail = asyncHandler(async (req, res) => {
