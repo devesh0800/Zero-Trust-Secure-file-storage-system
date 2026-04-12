@@ -43,6 +43,17 @@ async function initializeApp() {
         console.log('Validating configuration...');
         validateConfig();
 
+        // Ensure upload directories exist
+        const dirs = [config.upload.uploadDir, path.join(config.upload.uploadDir, 'temp')];
+        for (const dir of dirs) {
+            try {
+                await fs.access(dir);
+            } catch {
+                await fs.mkdir(dir, { recursive: true });
+                console.log(`✓ Created directory: ${dir}`);
+            }
+        }
+
         // Test database connection
         console.log('Testing database connection...');
         await testConnection();
