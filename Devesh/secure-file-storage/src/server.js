@@ -48,8 +48,8 @@ async function initializeApp() {
         await testConnection();
 
         // Synchronize database models
-        // Use alter: false to prevent SQLite validation errors with existing data
-        await syncDatabase({ force: false, alter: false });
+        // Use alter: true to ensure tables are created/updated in the new Neon DB
+        await syncDatabase({ force: false, alter: true });
 
         console.log('✓ Application initialized successfully\n');
     } catch (error) {
@@ -70,7 +70,7 @@ app.use(helmet({
             styleSrc: ["'self'", "'unsafe-inline'"],
             scriptSrc: ["'self'"],
             imgSrc: ["'self'", 'data:', 'https:'],
-            connectSrc: ["'self'", 'http://localhost:5000'],
+            connectSrc: ["'self'", '*'],
             frameAncestors: ["'none'"],
             objectSrc: ["'none'"],
             baseUri: ["'self'"],
@@ -83,7 +83,8 @@ app.use(helmet({
         preload: true
     },
     referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-    crossOriginEmbedderPolicy: false
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' }
 }));
 
 // CORS
