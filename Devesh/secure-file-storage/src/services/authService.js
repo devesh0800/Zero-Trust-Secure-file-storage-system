@@ -594,8 +594,9 @@ export async function requestUnlockMagicLink(email, ipAddress) {
 
     logSecurityEvent('magic_link_requested', { userId: user.id, ip: ipAddress });
 
-    // Send ACTUAL email using email service
-    const unlockUrl = `${process.env.CORS_ORIGIN || 'http://localhost:3000'}/unlock/verify?token=${tokenBytes}`;
+    // Extract the frontend URL (first origin from CORS_ORIGIN, which may be comma-separated)
+    const frontendUrl = (process.env.CORS_ORIGIN || 'http://localhost:3000').split(',')[0].trim();
+    const unlockUrl = `${frontendUrl}/unlock/verify?token=${tokenBytes}`;
     
     try {
         await emailService.sendMail({
