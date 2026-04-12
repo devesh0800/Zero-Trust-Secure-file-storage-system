@@ -7,6 +7,7 @@ import { AppError } from '../middlewares/errorHandler.js';
 import { logFileOperation, logSecurityEvent } from '../utils/logger.js';
 import { scanFile } from '../utils/virusScanner.js';
 import config from '../config/config.js';
+import storage from './storageService.js';
 
 /**
  * File Service
@@ -78,10 +79,9 @@ export async function uploadFile(fileData, userId, ipAddress, userAgent) {
         // Generate unique filename for encrypted file
         const fileExtension = path.extname(originalname);
         const storedFilename = `${uuidv4()}.enc`;
-        const storedPath = path.join(config.upload.uploadDir, storedFilename);
 
-        // Write encrypted file to disk
-        await fs.writeFile(storedPath, encryptedContent);
+        // Write encrypted file to storage (Cloud or Local)
+        await storage.upload(encryptedContent, storedFilename);
 
         // Delete temporary file
         await fs.unlink(tempPath);
@@ -179,19 +179,17 @@ export async function downloadFile(fileId, userId, ipAddress, userAgent) {
         throw new AppError('Access denied', 403);
     }
 
-    // Read encrypted file
-    const encryptedPath = path.join(config.upload.uploadDir, file.stored_filename);
-
+    // Read encrypted file from storage
     let encryptedContent;
     try {
-        encryptedContent = await fs.readFile(encryptedPath);
+        encryptedContent = await storage.download(file.stored_filename);
     } catch (error) {
-        logSecurityEvent('file_not_found_on_disk', {
+        logSecurityEvent('file_not_found_in_storage', {
             fileId,
             storedFilename: file.stored_filename
         });
 
-        throw new AppError('File not found on disk', 404);
+        throw new AppError('File not found in storage', 404);
     }
 
     // Decrypt file
@@ -370,13 +368,12 @@ export async function permanentlyDeleteFile(fileId) {
         throw new AppError('File not found', 404);
     }
 
-    // Delete encrypted file from disk
-    const filePath = path.join(config.upload.uploadDir, file.stored_filename);
+    // Delete encrypted file from storage
     try {
-        await fs.unlink(filePath);
+        await storage.remove(file.stored_filename);
     } catch (error) {
         // File might already be deleted
-        console.error('Error deleting file from disk:', error);
+        console.error('Error deleting file from storage:', error);
     }
 
     // Delete from database

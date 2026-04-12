@@ -19,8 +19,8 @@ const config = {
     name: process.env.DB_NAME || 'secure_file_storage',
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD,
-    dialect: 'sqlite',
-    storage: './database.sqlite',
+    dialect: process.env.DB_DIALECT || 'sqlite',
+    storage: process.env.DB_DIALECT === 'postgres' ? null : './database.sqlite',
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
     pool: {
       max: 5,
@@ -91,6 +91,14 @@ const config = {
   logging: {
     level: process.env.LOG_LEVEL || 'info',
     filePath: process.env.LOG_FILE_PATH || './src/logs'
+  },
+
+  // Cloud Storage (Extra for Production Stability)
+  storage: {
+    type: process.env.STORAGE_TYPE || 'local', // 'local' or 'supabase'
+    supabaseUrl: process.env.SUPABASE_URL,
+    supabaseKey: process.env.SUPABASE_KEY,
+    bucket: process.env.SUPABASE_BUCKET || 'secure-files'
   }
 };
 

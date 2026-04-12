@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "start": "node src/server.js",
+    "start": "node src/config/migrate.js && node src/server.js",
     "dev": "nodemon src/server.js",
     "db:migrate": "node src/config/migrate.js",
     "test": "jest --coverage",
@@ -20,6 +20,9 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "pg": "^8.11.3",
+    "pg-hstore": "^2.3.4",
     "@google/generative-ai": "^0.24.1",
     "axios": "^1.13.6",
     "bcrypt": "^5.1.1",
