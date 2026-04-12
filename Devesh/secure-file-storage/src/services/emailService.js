@@ -22,7 +22,9 @@ export async function getTransporter() {
                 },
                 tls: {
                     rejectUnauthorized: false
-                }
+                },
+                // Force IPv4 — Render Free Tier blocks outbound IPv6
+                dnsOptions: { family: 4 }
             });
             console.log(`📧 SMTP configured: ${process.env.SMTP_HOST}:${smtpPort} as ${process.env.SMTP_USER}`);
         } else {
