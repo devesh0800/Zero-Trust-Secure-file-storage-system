@@ -429,11 +429,11 @@ function ProfileContent() {
                                             <div className="space-y-2">
                                                 <label className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Gender</label>
                                                 <select value={personalInfo.gender} onChange={e => setPersonalInfo({ ...personalInfo, gender: e.target.value })} className="w-full rounded-xl border border-white/[0.06] bg-black/[0.2] px-4 py-3 text-[13px] text-white focus:border-blue-500/50 outline-none appearance-none">
-                                                    <option value="" className="bg-[#0c0c0e]">Select Gender</option>
-                                                    <option value="Male" className="bg-[#0c0c0e]">Male</option>
-                                                    <option value="Female" className="bg-[#0c0c0e]">Female</option>
-                                                    <option value="Other" className="bg-[#0c0c0e]">Other</option>
-                                                    <option value="Prefer not to say" className="bg-[#0c0c0e]">Prefer not to say</option>
+                                                    <option value="prefer_not_to_say" className="bg-[#0c0c0e]">Select Gender</option>
+                                                    <option value="male" className="bg-[#0c0c0e]">Male</option>
+                                                    <option value="female" className="bg-[#0c0c0e]">Female</option>
+                                                    <option value="other" className="bg-[#0c0c0e]">Other</option>
+                                                    <option value="prefer_not_to_say" className="bg-[#0c0c0e]">Prefer not to say</option>
                                                 </select>
                                             </div>
                                         </div>

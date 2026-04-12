@@ -140,6 +140,9 @@ app.use(cookieParser(config.cookie.secret));
 // Compression
 app.use(compression());
 
+// Static files
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
 // Trust proxy (for accurate IP addresses behind reverse proxy)
 app.set('trust proxy', 1);
 
