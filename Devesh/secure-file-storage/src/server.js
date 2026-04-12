@@ -4,9 +4,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 
-// Refreshing module cache to resolve Windows casing inconsistency
-process.env.DB_DIALECT = 'sqlite';
-process.env.DB_STORAGE = './database.sqlite';
+// Environment-driven configuration
 
 import config, { validateConfig } from './config/config.js';
 import { testConnection, syncDatabase } from './config/database.js';
