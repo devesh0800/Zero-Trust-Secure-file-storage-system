@@ -48,7 +48,7 @@ export const updateProfile = asyncHandler(async (req, res) => {
 });
 
 /**
- * Update profile picture (Avatar)
+ * Update profile picture (Avatar) — Cloudinary Cloud Upload
  */
 export const updateAvatar = asyncHandler(async (req, res) => {
     if (!req.file) {
@@ -56,17 +56,48 @@ export const updateAvatar = asyncHandler(async (req, res) => {
     }
 
     const user = await User.findByPk(req.user.id);
-    
-    // Store relative path in DB
-    const avatarPath = `/uploads/avatars/${req.file.filename}`;
-    user.profile_pic = avatarPath;
+
+    // Check if Cloudinary is configured
+    if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+        const { v2: cloudinary } = await import('cloudinary');
+        
+        cloudinary.config({
+            cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+            api_key: process.env.CLOUDINARY_API_KEY,
+            api_secret: process.env.CLOUDINARY_API_SECRET
+        });
+
+        // Upload to Cloudinary from buffer
+        const result = await new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+                {
+                    folder: 'securevault/avatars',
+                    public_id: `user_${user.id}`,
+                    overwrite: true,
+                    transformation: [{ width: 400, height: 400, crop: 'fill', gravity: 'face' }]
+                },
+                (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result);
+                }
+            );
+            stream.end(req.file.buffer);
+        });
+
+        user.profile_pic = result.secure_url;
+    } else {
+        // Fallback to local storage (dev only)
+        const avatarPath = `/uploads/avatars/${req.file.filename}`;
+        user.profile_pic = avatarPath;
+    }
+
     await user.save();
 
     res.status(200).json({
         success: true,
         message: 'Profile picture updated successfully',
         data: {
-            profile_pic: avatarPath
+            profile_pic: user.profile_pic
         }
     });
 });

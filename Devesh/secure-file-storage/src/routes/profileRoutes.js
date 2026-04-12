@@ -5,19 +5,9 @@ import { apiLimiter } from '../middlewares/rateLimiter.js';
 import multer from 'multer';
 import path from 'path';
 
-// Setup basic storage for avatars
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/avatars/');
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'avatar-' + req.user.id + '-' + uniqueSuffix + path.extname(file.originalname));
-    }
-});
-
+// Use memory storage for cloud uploads (Cloudinary)
 const upload = multer({ 
-    storage,
+    storage: multer.memoryStorage(),
     limits: { fileSize: 2 * 1024 * 1024 }, // 2MB limit
     fileFilter: (req, file, cb) => {
         if (file.mimetype.startsWith('image/')) {
